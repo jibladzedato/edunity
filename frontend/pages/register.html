@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>რეგისტრაცია | EDUNITY</title>
+
+    <link rel="stylesheet" href="../css/syle.css">
+    <link rel="stylesheet" href="../css/autorizacia.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Days+One&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="overlay" id="overlay"></div>
+
+    <header>
+        <div class="header-container">
+
+            <div class="logo-burger-container">
+                <a href="../index.html" class="logo">EDUNITY</a>
+                <img src="../assets/icon-menu.svg" class="burger" id="burger-button">
+            </div>
+
+            <nav id="nav">
+                <button class="close" id="close-button">
+                    <img src="../assets/icon-close.svg" class="close-image">
+                </button>
+
+                <ul>
+                    <li><a href="../index.html">მთავარი</a></li>
+                    <li><a href="courses.html">კურსები</a></li>
+                    <li><a href="teaching.html">სწავლება</a></li>
+                    <li class="nav-auth-item"><a href="login.html" class="auth-slot">კაბინეტი</a></li>
+                </ul>
+            </nav>
+            <div class="desktop-auth">
+                <a href="login.html" class="auth-slot">შესვლა/რეგისტრაცია</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="rest">
+        <main class="avtorizacia-container">
+
+            <div class="avtorizacia-card">
+
+                <div class="avtorizacia-satauri">
+                    <h1>შექმენი ანგარიში</h1>
+                </div>
+
+                <form class="avtorizacia-inputebi" id="registracia" novalidate>
+
+                    <label class="avtorizaciis-veli">
+                        <span class="velis-texti">სახელი</span>
+
+                        <div class="velis-input">
+                            <img src="../assets/mail.svg" class="avtorizacia-iconebi">
+
+                            <input type="text"
+                                   id="saxeli"
+                                   placeholder="შენი სახელი"
+                                   autocomplete="name"
+                                   required>
+                        </div>
+
+                        <span class="avtorizacia-shecdoma" id="shecdoma-saxelshi"></span>
+                    </label>
+                    <label class="avtorizaciis-veli">
+                        <span class="velis-texti">ელ.ფოსტა</span>
+
+                        <div class="velis-input">
+                            <img src="../assets/mail.svg" class="avtorizacia-iconebi">
+
+                            <input type="email"
+                                   id="meili"
+                                   placeholder="example@edunity.ge"
+                                   autocomplete="email"
+                                   required>
+                        </div>
+
+                        <span class="avtorizacia-shecdoma" id="shecdoma-meilshi"></span>
+                    </label>
+                    <label class="avtorizaciis-veli">
+                        <span class="velis-texti">პაროლი</span>
+
+                        <div class="velis-input">
+                            <img src="../assets/lock.svg" class="avtorizacia-iconebi">
+
+                            <input type="password" id="paroli" placeholder="შეიყვანე პაროლი" autocomplete="new-password" >
+
+                            <button type="button" id="parolis-naxva">
+                                <img src="../assets/eye.svg" class="avtorizacia-iconebi">
+                            </button>
+                        </div>
+
+                        <span class="avtorizacia-shecdoma" id="shecdoma-parolshi"></span>
+                    </label>
+
+                    <label class="avtorizaciis-veli">
+                        <span class="velis-texti">გაიმეორე პაროლი</span>
+
+                        <div class="velis-input">
+                            <img src="../assets/lock.svg" class="avtorizacia-iconebi">
+
+                            <input type="password"
+                                   id="gaimeore-paroli"
+                                   placeholder="გაიმეორე პაროლი"
+                                   autocomplete="new-password"
+                                   required>
+
+                            <button type="button" id="ganmeorebis-naxva">
+                                <img src="../assets/eye.svg" class="avtorizacia-iconebi">
+                            </button>
+                        </div>
+
+                        <span class="avtorizacia-shecdoma" id="shecdoma-gameorebashi"></span>
+                    </label>
+
+                    <span class="avtorizacia-shecdoma" id="saerto-shecdoma"></span>
+
+                    <button type="submit" class="avtorizacia-dadastureba" id="submit-button">
+                        რეგისტრაცია
+                    </button>
+
+                    <div class="avtorizacia-an">
+                        <span class="an-xazi"></span>
+                        <span>ან</span>
+                        <span class="an-xazi"></span>
+                    </div>
+
+                    <button type="button" class="avtorizacia-google">
+                        <img src="../assets/google.svg">
+                        გაგრძელება Google-ით
+                    </button>
+
+                </form>
+
+                <p class="avtorizacia-footer">
+                    უკვე გაქვს ანგარიში?
+                    <a href="./login.html" class="avtorizacia-registracia-shesvla">
+                        შესვლა
+                    </a>
+                </p>
+
+            </div>
+
+        </main>
+    </div>
+
+    <footer>
+        <p>EDUNITY</p>
+    </footer>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/register.js"></script>
+</body>
+</html>

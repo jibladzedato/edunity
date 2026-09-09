@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ნაბიჯების რედაქტორი | EDUNITY</title>
+    <link rel="stylesheet" href="../css/syle.css">
+    <link rel="stylesheet" href="../css/editor.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Days+One&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="lesson-topbar">
+        <a href="../index.html" class="logo">EDUNITY</a>
+        <span class="lesson-topbar-title" id="topbar-title">იტვირთება...</span>
+        <a href="#" id="back-to-course" class="lesson-exit">კურსის რედაქტორი</a>
+    </header>
+
+    <div class="step-editor-layout">
+        <aside class="step-sidebar" id="step-sidebar">
+            <p class="editor-loading">იტვირთება...</p>
+        </aside>
+
+        <main class="step-main" id="step-main">
+            <p class="editor-loading">იტვირთება...</p>
+        </main>
+    </div>
+
+    <!-- Модалка выбора типа шага -->
+    <div class="step-modal" id="step-modal" hidden>
+        <div class="step-modal-box">
+            <button class="step-modal-close" id="step-modal-close">✕</button>
+            <h2>აირჩიე ნაბიჯის ტიპი</h2>
+
+            <div class="step-type-grid">
+                <button class="step-type-card" data-type="text">
+                    <span class="step-type-name">ტექსტი</span>
+                    <span class="step-type-desc">ტექსტი ფორმატირებით</span>
+                </button>
+                <button class="step-type-card" data-type="video">
+                    <span class="step-type-name">ვიდეო</span>
+                    <span class="step-type-desc">ატვირთე ვიდეოს ბმული</span>
+                </button>
+                <button class="step-type-card" data-type="quiz">
+                    <span class="step-type-name">ტესტი</span>
+                    <span class="step-type-desc">აირჩიე სწორი პასუხი სიიდან</span>
+                </button>
+                <button class="step-type-card" data-type="code">
+                    <span class="step-type-name">პროგრამირება</span>
+                    <span class="step-type-desc">დაწერე პროგრამა</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/ui.js"></script>
+    <script src="../js/upload.js"></script>
+    <script src="../js/rich-text.js"></script>
+    <script src="../js/step-editor.js"></script>
+</body>
+</html>

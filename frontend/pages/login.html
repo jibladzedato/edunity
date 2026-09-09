@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>შესვლა | EDUNITY</title>
+
+    <link rel="stylesheet" href="../css/syle.css">
+    <link rel="stylesheet" href="../css/autorizacia.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Days+One&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="overlay" id="overlay"></div>
+
+    <header>
+        <div class="header-container">
+            <div class="logo-burger-container">
+                <a href="../index.html" class="logo">EDUNITY</a>
+                <img src="../assets/icon-menu.svg" class="burger" id="burger-button">
+            </div>
+
+            <nav id="nav">
+                <button class="close" id="close-button">
+                    <img src="../assets/icon-close.svg" class="close-image">
+                </button>
+
+                <ul>
+                    <li><a href="../index.html">მთავარი</a></li>
+                    <li><a href="courses.html">კურსები</a></li>
+                    <li><a href="teaching.html">სწავლება</a></li>
+                    <li class="nav-auth-item"><a href="login.html" class="auth-slot">კაბინეტი</a></li>
+                </ul>
+            </nav>
+            <div class="desktop-auth">
+                <a href="login.html" class="auth-slot">შესვლა/რეგისტრაცია</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="rest">
+        <main class="avtorizacia-container">
+            <div class="avtorizacia-card">
+
+                <div class="avtorizacia-satauri">
+                    <h1>ავტორიზაცია</h1>
+                </div>
+
+                <form class="avtorizacia-inputebi" id="login" novalidate>
+
+                    <label class="avtorizaciis-veli">
+                        <span class="velis-texti">ელ.ფოსტა</span>
+
+                        <div class="velis-input">
+                            <img src="../assets/mail.svg" alt="" class="avtorizacia-iconebi">
+
+                            <input
+                                type="email"
+                                name="email"
+                                id="meili"
+                                placeholder="example@edunity.ge"
+                                autocomplete="email"
+                                required
+                            >
+                        </div>
+
+                        <span class="avtorizacia-shecdoma" id="shecdomameilshi"></span>
+                    </label>
+
+                    <label class="avtorizaciis-veli">
+                        <span class="velis-texti">პაროლი</span>
+
+                        <div class="velis-input">
+                            <img src="../assets/lock.svg" alt="" class="avtorizacia-iconebi">
+
+                            <input
+                                type="password"
+                                name="password"
+                                id="paroli"
+                                placeholder="შეიყვანე პაროლი"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                            <button type="button" class="avtorizacia-iconebi" id="parolisnaxva">
+                                <img src="../assets/eye.svg" alt="" id="parolisnaxvaicon">
+                            </button>
+                        </div>
+
+                        <span class="avtorizacia-shecdoma" id="shecdomaparolshi"></span>
+                    </label>
+
+                    <div class="avtorizacia-damimaxsovre">
+                        <label class="checkbox">
+                            <input type="checkbox">
+                            დამიმახსოვრე
+                        </label>
+
+                        <a href="" class="avtorizacia-dagaviwyda">
+                            დაგავიწყდა პაროლი?
+                        </a>
+                    </div>
+
+                    <span class="avtorizacia-shecdoma" id="saerto-shecdoma"></span>
+
+                    <button type="submit" class="avtorizacia-dadastureba" id="submit-button">
+                        შესვლა
+                    </button>
+
+                    <div class="avtorizacia-an">
+                        <span class="an-xazi"></span>
+                        <span>ან</span>
+                        <span class="an-xazi"></span>
+                    </div>
+
+                    <button type="button" class="avtorizacia-google">
+                        <img src="../assets/google.svg" alt="">
+                        გაგრძელება Google-ით
+                    </button>
+
+                </form>
+
+                <p class="avtorizacia-footer">
+                    არ გაქვს ანგარიში?
+                    <a href="./register.html" class="avtorizacia-registracia-shesvla">
+                        დარეგისტრირდი
+                    </a>
+                </p>
+
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>EDUNITY</p>
+    </footer>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,1367 @@
+@font-face {
+  font-family: "FiraGO";
+  src: url("../assets/fonts/FiraGO-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "FiraGO";
+  src: url("../assets/fonts/FiraGO-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "FiraGO";
+  src: url("../assets/fonts/FiraGO-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "FiraGO";
+  src: url("../assets/fonts/FiraGO-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+body {
+    font-family: "FiraGO", sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+main, .rest {
+    flex: 1;
+    align-self: stretch;
+    width: 100%;
+}
+.days-one-regular {
+  font-family: "Days One", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+
+.noto-sans-georgian-me{
+  font-family: "FiraGO", sans-serif;
+  font-optical-sizing: auto;
+  font-weight:100;
+  font-style: normal;
+  font-variation-settings: "width" 100;
+}
+
+header {
+    padding: 14px 14px;
+    border-bottom: 1px solid #00000018;
+    position: relative;
+    z-index: 200;
+}
+.logo-burger-container{
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+
+}
+.header-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: auto;
+    background: #ffffff;
+    padding: 20px;
+    border-top: 1px solid #00000018;
+    display: none;
+    z-index: 201;
+    font-family: "FiraGO";
+}
+button{
+    background-color: #ffffff00;
+    border: 0px;
+    cursor: pointer;
+}
+nav.open {
+    display: flex;
+    flex-direction: column;
+}
+nav ul {
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+nav li {
+    list-style: none;
+    color: #000;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+}
+nav li a{
+    display: block;
+    font-family: inherit;
+    color: inherit;
+    text-decoration: inherit;
+    cursor: pointer;
+    padding: 6px 14px;
+    border-radius: 20px;
+}
+nav li a.active,
+.desktop-auth a.active {
+    background: #5fb670;
+    color: #fff;
+}
+
+.burger {
+    width: 24px;
+    height: auto;
+    cursor: pointer;
+
+
+}
+.logo {
+    text-decoration: none;
+    color: #5FB670;
+    font-size: 22px;
+    font-weight: bold;
+    font-family: "Days One";
+    
+}
+.close {
+    display: flex;
+    justify-content: flex-end;
+}
+.overlay {
+    display: none;
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 200;
+}
+.overlay.active {
+    display: block;
+}
+
+
+.search-container {
+    display: flex;
+    flex-direction:column ;
+    padding: 12px 14px;
+    background: #ececec;
+    margin: 12px 14px;
+    border-radius: 10px;
+}
+
+.search-pirveli {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.srch-input {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 9px 12px;
+    gap: 8px;
+}
+.srch-input input {
+    border: none;
+    font-size: 12px;
+    color: #9e9e9e;
+    width: 100%;
+}
+
+
+.filtri {
+    width: 33px;
+    height: 33px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.filter-picture{
+    width: 70%;
+    fill: #0e2a46;
+}
+
+.search-meore {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    color: #000;
+}
+
+.checkbox input[type=checkbox] {
+    width: 16px;
+    height: 16px;
+
+    accent-color: #5fb670;
+    cursor: pointer;
+}
+
+.dzebna {
+    margin-left: auto;
+    background: #5fb670;
+    color: #fff;
+    border-radius: 4px;
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.search-empty {
+    text-align: center;
+    color: #9e9e9e;
+    font-size: 13px;
+    padding: 10px 0 0;
+}
+
+/* ==== Правая часть шапки (десктоп): вход/регистрация или имя ==== */
+.desktop-auth {
+    display: none;
+}
+.desktop-auth a {
+    text-decoration: none;
+    color: #000;
+    font-weight: 600;
+    font-size: 14px;
+    font-family: "FiraGO";
+    white-space: nowrap;
+    padding: 6px 16px;
+    border-radius: 20px;
+}
+
+/* ==== Каталог курсов (courses.html) ==== */
+.catalog-header {
+    padding: 20px 14px 0;
+}
+.catalog-header h1 {
+    font-family: "FiraGO";
+    font-size: 22px;
+    color: #000;
+    margin-bottom: 16px;
+}
+.category-filters {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 14px;
+}
+.category-chip {
+    flex-shrink: 0;
+    font-family: "FiraGO";
+    font-size: 13px;
+    font-weight: 600;
+    color: #000;
+    background: #ececec;
+    border: none;
+    border-radius: 20px;
+    padding: 9px 16px;
+    cursor: pointer;
+}
+.category-chip.active {
+    background: #5fb670;
+    color: #fff;
+}
+.catalog-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 4px 14px 40px;
+}
+.catalog-grid .kursi-card {
+    width: 100%;
+}
+.catalog-empty {
+    text-align: center;
+    color: #9e9e9e;
+    font-size: 14px;
+    padding: 40px 14px;
+    font-family: "FiraGO";
+}
+
+@media (min-width: 768px) {
+    .catalog-grid {
+        flex-direction: column;
+        flex-wrap: nowrap;
+    }
+    .catalog-grid .kursi-card {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        width: 100%;
+    }
+    .catalog-grid .kursi-picture {
+        width: 200px;
+        height: auto;
+        flex-shrink: 0;
+        object-fit: contain;
+        background: #eef1ec;
+        padding: 14px;
+    }
+    .catalog-grid .kursi-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 16px 20px;
+    }
+    .catalog-grid .kursis-footer {
+        margin-top: 6px;
+    }
+}
+
+/* ==== Страница курса (course.html) ==== */
+.course-hero {
+    background: linear-gradient(135deg, #d9f2df, #b7e4c7);
+    border-radius: 0 0 20px 20px;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.course-hero-icon {
+    width: 90px;
+    height: 90px;
+    border-radius: 18px;
+    background: #0e2a46;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-start;
+}
+.course-hero-icon img {
+    width: 46px;
+    height: 46px;
+}
+.course-hero h1 {
+    font-family: "FiraGO";
+    font-size: 24px;
+    color: #000;
+    margin-bottom: 10px;
+}
+.course-hero p {
+    font-family: "FiraGO";
+    font-size: 14px;
+    color: #000;
+    line-height: 1.5;
+}
+.course-hero-rating {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    font-family: "FiraGO";
+    font-size: 13px;
+    color: #000;
+}
+.course-body {
+    padding: 24px 14px 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    font-family: "FiraGO";
+}
+.course-body h2 {
+    font-size: 17px;
+    color: #000;
+    margin-bottom: 12px;
+}
+.course-body ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.course-body li {
+    font-size: 14px;
+    color: #000;
+    padding-left: 18px;
+    position: relative;
+}
+.course-body li::before {
+    content: "•";
+    color: #5fb670;
+    position: absolute;
+    left: 0;
+    font-weight: 900;
+}
+.course-sidebar {
+    background: #f5f8f4;
+    border-radius: 16px;
+    padding: 20px;
+}
+.course-price {
+    font-size: 24px;
+    font-weight: 900;
+    color: #000;
+    margin-bottom: 14px;
+}
+.course-sidebar button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+.course-start-btn {
+    background: #5fb670;
+    color: #fff;
+    border: none;
+}
+.course-save-btn {
+    background: #fff;
+    color: #000;
+    border: 1px solid #cfd8d5 !important;
+}
+.course-stats {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 13px;
+    color: #000;
+}
+
+@media (min-width: 768px) {
+    .course-hero {
+        flex-direction: row;
+        align-items: center;
+        padding: 40px 30px;
+    }
+    .course-content-columns {
+        display: flex;
+        gap: 30px;
+        align-items: flex-start;
+    }
+    .course-main {
+        flex: 1;
+    }
+    .course-sidebar {
+        width: 280px;
+        flex-shrink: 0;
+    }
+}
+
+/* ==== Страница "სწავლება" (teaching.html) ==== */
+.teach-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+}
+.teach-hero {
+    background: #eef1ec;
+    border-radius: 20px;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: center;
+    text-align: center;
+    font-family: "FiraGO";
+}
+.teach-hero-photo {
+    width: 100%;
+    max-width: 320px;
+    aspect-ratio: 4 / 3;
+    border-radius: 14px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #d7ded9;
+}
+.teach-hero-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.teach-hero-photo--empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.teach-hero h1 {
+    font-size: 26px;
+    color: #000;
+    line-height: 1.3;
+    margin-bottom: 12px;
+}
+.teach-hero p {
+    font-size: 15px;
+    color: #000;
+    max-width: 420px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+.teach-cta {
+    background: #5fb670;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    padding: 13px 32px;
+    font-weight: 700;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+}
+.teach-features {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding: 60px 0 0;
+    font-family: "FiraGO";
+}
+.teach-feature {
+    text-align: center;
+}
+.teach-feature-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #f5f8f4;
+    border: 1px solid #e5e9e3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+}
+.teach-feature-icon svg {
+    width: 26px;
+    height: 26px;
+}
+.teach-feature h3 {
+    font-size: 16px;
+    color: #000;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+.teach-feature p {
+    font-size: 13px;
+    color: #000;
+    line-height: 1.6;
+}
+
+@media (min-width: 768px) {
+    .teach-page {
+        padding: 60px 40px 80px;
+    }
+    .teach-hero {
+        flex-direction: row;
+        text-align: left;
+        justify-content: space-between;
+        padding: 48px;
+        gap: 40px;
+    }
+    .teach-hero-content {
+        max-width: 420px;
+    }
+    .teach-hero p {
+        max-width: none;
+    }
+    .teach-hero-photo {
+        max-width: 340px;
+    }
+    .teach-features {
+        flex-direction: row;
+        gap: 40px;
+    }
+    .teach-feature {
+        flex: 1;
+    }
+}
+.hero {
+    margin: 0 14px 12px;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    height: 200px;
+}
+.hero-picture{
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+.hero-text{
+    font-family: "FiraGO";
+    color: white;
+    position: absolute;
+    inset: 0;
+    background-color: #0000002d;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    padding: 16px;
+    gap: 6px;
+}
+.kategoriebi{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 14px 14px;
+    gap: 14px;
+}
+.kategoriebi p{
+    font-family: "FiraGO";
+    font-weight: 600;
+    font-size: 17px;
+}
+.cards{
+
+    width: 80%;
+    overflow: hidden;
+
+}
+
+/* .kategoriebi div задаёт width:100% всем вложенным div и по специфичности
+   перебивает .cards — тогда стрелкам не остаётся места и правая переносится
+   на новую строку. Здесь возвращаем блоку плиток нормальное поведение. */
+.kategoriebi .cards {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+}
+.kategoriebi .arrow {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    padding: 0 6px;
+    cursor: pointer;
+}
+.kategoriebi div{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+    gap: 2px;
+}
+
+.cards-container div{
+    padding: 10px 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+    width: calc(50% - 1px);
+    flex-shrink: 0;
+    cursor: pointer;
+}
+.cards-container{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    transition: transform 0.3s ease;
+    gap: 2px;
+    
+}
+.cards-container div  p{
+    font-family: "FiraGO";
+    font-size: 14px;
+    font-weight: 600;
+}
+.cards-container div div {
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+}
+.cards-container  div  img{
+    width: 50px;
+}
+.card1{
+    background-color: #EEFBF5;
+}
+.card2{
+    background-color: #EAF6FF;
+}
+.card3{
+    background-color: #FFDAF0;
+}
+.card4{
+    background-color: #FFF3D9;
+}
+.card5{
+    background-color: #DCF5FF;
+}
+.card6{
+    background-color: #DFD4F4;
+}
+
+.card1 {
+    background-color: #EEFBF5;
+}
+.card2 {
+    background-color: #EAF6FF;
+}
+.card3 {
+    background-color: #FFDAF0;
+}
+.card4 {
+    background-color: #FFF3D9;
+}
+.card5 {
+    background-color: #DCF5FF;
+}
+.card6 {
+    background-color: #DFD4F4;
+}
+.arrow img{
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+
+.kursebi{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0 14px 8px;
+    gap: 14px;
+    
+}
+
+.pop-kursebi{
+    font-family: "FiraGO";
+    font-weight: 600;
+    font-size: 17px;
+    align-self: center;
+}
+
+.kursebi-scroll {
+    overflow-x: auto;
+    padding: 0 0 12px;
+    scrollbar-width: none;
+}
+.meti {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f5f8f4;
+    border-radius: 16px;
+}
+
+.meti-btn {
+    width: 200px;
+    height: 50px;
+    border: none;
+    border-radius: 30px;
+    background: #5fb670;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family:"FiraGO" ;
+}
+
+.kursebi-container {
+    display: flex;
+    gap: 14px;
+    width: max-content;
+    
+    font-family: "FiraGO";
+}
+
+.kursi-card {
+    background: #f5f8f4;
+    border-radius: 16px;
+    width: 240px;
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.kursi-picture {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+}
+
+.kursi-body {
+    padding: 10px 12px 14px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.reitingi {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.shefaseba {
+    display: flex;
+    align-items: center;
+}
+
+.varskvlavebi {
+    color: #f5b301;
+    font-size: 11px;
+}
+
+/* Рейтинг: одна звезда + число (правила здесь, т.к. syle.css грузится на всех страницах) */
+.rating-star {
+    color: #f5b301 !important;
+    font-size: 15px;
+    line-height: 1;
+}
+.rating-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: #000;
+    margin-left: 4px;
+}
+
+.kursis-reitingi {
+    font-size: 11px;
+    color: #000;
+    margin-left: 4px;
+}
+
+.kursis-fasi {
+    font-size: 12px;
+    color: #5fb670;
+    font-weight: 700;
+}
+
+.kursis-saxeli {
+    font-size: 15px;
+    font-weight: 700;
+    color: #000;
+    line-height: 1.35;
+    margin-bottom: 8px;
+}
+
+.kursis-agwera {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    background: #fff;
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    font-size: 11px;
+    color: #000;
+}
+
+.agwera-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.kursis-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 10px;
+}
+
+.avtori {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.avtori-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1.5px solid #5fb670;
+    object-fit: cover;
+}
+
+.avtoris-saxeli {
+    font-size: 12px;
+    color: #000;
+    font-weight: 500;
+}
+
+.kursis-dawyeba {
+    background: #5fb670;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+
+
+
+
+
+
+
+
+
+.leqtorebi {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    margin: 16px 14px;
+    background: #f5f8f4;
+    border-radius: 24px;
+    padding: 20px 16px;
+}
+
+
+
+.aarchie-leqtori {
+    font-family: "FiraGO";
+    font-size: 17px;
+    font-weight: 600;
+    color: #000;
+    line-height: 1.3;
+    margin-bottom: 12px;
+}
+
+.ipove-kursi-button {
+    display: inline-flex;
+    align-items: center;
+    padding-left: 10px;
+    gap: 10px;
+    background: #5fb670;
+    color: #fff;
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin: 10px;
+    font-family:"FiraGO" ;
+}
+
+.ipove-kursi-arrow{
+    width: 40px;
+}
+
+.leqtorebis-fotoebi {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.leqtori-card {
+    border-radius: 20px;
+    overflow: hidden;
+    border: 3px solid #5fb670;
+    position: relative;
+    aspect-ratio: 1 / 1.15;
+    cursor: pointer;
+}
+
+.leqtori-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.leqtoris-agwera {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    padding: 8px 10px;
+    text-align: center;
+    border-radius: 0 0 17px 17px;
+}
+
+.leqtoris-saxeli {
+    font-size: 13px;
+    font-weight: 700;
+    color: #000;
+    line-height: 1.2;
+}
+
+.leqtoris-pozicia {
+    font-size: 10px;
+    color: #000;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+footer{
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    background-color: #193127;
+
+}
+footer p{
+    align-self: center;
+    color: #5FB670;
+    font-size: 30px;
+    font-weight: bold;
+    font-family: "Days One";
+}
+
+
+
+@media (min-width: 768px) {
+    .ipove-kursi-button {
+        font-family:"FiraGO" ;
+        border-radius: 60px;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        
+    }
+    .ipove-kursi-arrow {
+        width: 40px;
+    }
+    .rest {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .burger { 
+        display: none; 
+    }
+    .close { 
+        display: none; 
+    }
+    .overlay { 
+        display: none ;
+    }
+    .header-container {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+    }
+    .logo-burger-container {
+        width: auto;
+        grid-column: 1;
+        justify-self: start;
+    }
+    nav {
+        position: static;
+        grid-column: 2;
+        justify-self: center;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        border: none;
+    }
+
+    nav ul {
+        flex-direction: row;  
+        
+        gap: 8px;
+        margin-top: 0;
+        align-items: center;
+        
+    }
+
+    nav li {
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+    }
+
+    .nav-auth-item {
+        display: none;
+    }
+
+    .desktop-auth {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        grid-column: 3;
+        justify-self: end;
+    }
+
+    .hero {
+        height: 320px;
+    }
+
+    .hero-text h1 {
+        font-size: 36px;
+    }
+
+    .cards-container div {
+        width: calc(33.33% - 2px);
+    }
+
+    .kursebi-container {
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .kursi-card {
+        width: calc(33.33% - 10px);
+    }
+
+    .leqtorebis-fotoebi {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+}
+
+
+
+/* ==== Страница урока (lesson.html) — отдельный, сфокусированный режим ==== */
+.lesson-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid #e5e9e3;
+    gap: 16px;
+}
+.lesson-topbar-title {
+    font-family: "FiraGO";
+    font-size: 14px;
+    font-weight: 600;
+    color: #000;
+    flex: 1;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.lesson-exit {
+    font-family: "FiraGO";
+    font-size: 13px;
+    font-weight: 700;
+    color: #5fb670;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.lesson-layout {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.lesson-sidebar {
+    background: #f5f8f4;
+    border-bottom: 1px solid #e5e9e3;
+    padding: 20px;
+    font-family: "FiraGO";
+}
+.lesson-sidebar-course {
+    font-size: 12px;
+    color: #000;
+    margin-bottom: 4px;
+}
+.lesson-sidebar-chapter {
+    font-size: 15px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 14px;
+}
+.lesson-sidebar-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.lesson-sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #000;
+    cursor: default;
+}
+.lesson-sidebar-item.active {
+    background: #fff;
+    color: #000;
+    font-weight: 700;
+    box-shadow: 0 0 0 1px #e5e9e3;
+}
+.lesson-sidebar-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #5fb670;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.lesson-sidebar-item:not(.active) .lesson-sidebar-num {
+    background: #cfd8d5;
+}
+
+.lesson-main {
+    padding: 24px 20px 60px;
+    font-family: "FiraGO";
+}
+.lesson-content {
+    max-width: 680px;
+    margin: 0 auto 40px;
+}
+.lesson-eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    color: #5fb670;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+}
+.lesson-content h1 {
+    font-size: 22px;
+    color: #000;
+    margin-bottom: 20px;
+    line-height: 1.35;
+}
+.lesson-paragraph {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #000;
+    margin-bottom: 16px;
+}
+
+.lesson-quiz {
+    max-width: 680px;
+    margin: 0 auto;
+    background: #f5f8f4;
+    border-radius: 16px;
+    padding: 24px;
+}
+.lesson-quiz-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #000;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 10px;
+}
+.lesson-quiz-question {
+    font-size: 16px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 16px;
+}
+.lesson-quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+.lesson-quiz-option {
+    text-align: left;
+    background: #fff;
+    border: 1px solid #dfe5e0;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #000;
+    cursor: pointer;
+}
+.lesson-quiz-option:hover:not(:disabled) {
+    border-color: #5fb670;
+}
+.lesson-quiz-option.correct {
+    border-color: #5fb670;
+    background: #eefbf5;
+    color: #1f6b3a;
+    font-weight: 700;
+}
+.lesson-quiz-option.incorrect {
+    border-color: #fc6441;
+    background: #fff1ec;
+    color: #b5391c;
+}
+.lesson-quiz-option:disabled {
+    cursor: default;
+}
+.lesson-quiz-feedback {
+    font-size: 13px;
+    font-weight: 700;
+}
+.lesson-quiz-feedback.ok {
+    color: #1f6b3a;
+}
+.lesson-quiz-feedback.no {
+    color: #b5391c;
+}
+.lesson-sidebar-loading {
+    padding: 20px;
+    color: #9e9e9e;
+    font-family: "FiraGO";
+    font-size: 13px;
+}
+
+@media (min-width: 768px) {
+    .lesson-layout {
+        flex-direction: row;
+    }
+    .lesson-sidebar {
+        width: 280px;
+        flex-shrink: 0;
+        border-bottom: none;
+        border-right: 1px solid #e5e9e3;
+        min-height: calc(100vh - 57px);
+    }
+    .lesson-main {
+        flex: 1;
+        padding: 48px 40px 80px;
+    }
+}

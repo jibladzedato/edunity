@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ახალი კურსი | EDUNITY</title>
+    <link rel="stylesheet" href="../css/syle.css">
+    <link rel="stylesheet" href="../css/editor.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Days+One&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+
+    <header>
+        <div class="header-container">
+            <div class="logo-burger-container">
+                <a href="../index.html" class="logo">EDUNITY</a>
+                <img src="../assets/icon-menu.svg" class="burger" id="burger-button">
+            </div>
+            <nav id="nav">
+                <button class="close" id="close-button"><img src="../assets/icon-close.svg" class="close-image"></button>
+                <ul>
+                    <li><a href="../index.html">მთავარი</a></li>
+                    <li><a href="courses.html">კურსები</a></li>
+                    <li><a href="teaching.html" class="active">სწავლება</a></li>
+                    <li class="nav-auth-item"><a href="login.html" class="auth-slot">კაბინეტი</a></li>
+                </ul>
+            </nav>
+            <div class="desktop-auth">
+                <a href="login.html" class="auth-slot">შესვლა/რეგისტრაცია</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="rest">
+        <div class="new-course-page">
+            <a href="teaching.html" class="editor-back">← ჩემი კურსები</a>
+
+            <h1 class="new-course-title">ახალი კურსის შექმნა</h1>
+
+            <div class="editor-field">
+                <label for="course-title">კურსის სახელი <span class="required">*</span></label>
+                <input type="text" id="course-title" maxlength="64" autocomplete="off">
+                <div class="new-course-counter">
+                    <span class="editor-hint">მაქსიმუმ 64 სიმბოლო</span>
+                    <span id="char-count">0/64</span>
+                </div>
+                <p class="field-error" id="title-error" hidden></p>
+            </div>
+
+            <button class="editor-save-btn" id="create-btn">კურსის შექმნა</button>
+
+            <div class="new-course-note">
+                <p>დაიწყე მუშაობა კურსის მონახაზზე — გამოქვეყნებამდე შეგიძლია გახადო კურსი ფასიანი ან დატოვო უფასოდ.</p>
+                <p>გამოქვეყნებამდე კურსი ჩანს მხოლოდ შენთვის.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer><p>EDUNITY</p></footer>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/ui.js"></script>
+    <script src="../js/course-new.js"></script>
+</body>
+</html>

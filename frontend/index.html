@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDUNITY — ონლაინ კურსების პლატფორმა</title>
+    <link rel="stylesheet" href="css/syle.css">
+    <link rel="stylesheet" href="css/editor.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Days+One&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+
+    <header>
+        <div class="header-container">
+            <div class="logo-burger-container">
+                <a href="./index.html" class="logo">EDUNITY</a>
+                <img src="assets/icon-menu.svg" class="burger" id="burger-button">
+            </div>
+            <nav id="nav">
+                <button class="close" id="close-button"><img src="assets/icon-close.svg" class="close-image"></button>
+                <ul>
+                    <li><a href="./index.html" class="active">მთავარი</a></li>
+                    <li><a href="pages/courses.html">კურსები</a></li>
+                    <li><a href="pages/teaching.html">სწავლება</a></li>
+                    <li class="nav-auth-item"><a href="pages/login.html" class="auth-slot">კაბინეტი</a></li>
+                </ul>
+            </nav>
+            <div class="desktop-auth">
+                <a href="pages/login.html" class="auth-slot">შესვლა/რეგისტრაცია</a>
+            </div>
+        </div>
+    </header>
+    <div class="rest">
+        <div class="search-container">
+            <div class="search-pirveli">
+                <div class="srch-input">
+                    <input type="text" id="search-input" placeholder="იპოვე სასურველი კურსი...">
+                </div>
+                <button class="filtri" aria-label="ფილტრი" id="filter-toggle">
+                    <img src="assets/filter-alt-svgrepo-com.svg" alt="">
+                </button>
+            </div>
+            <div class="search-meore" id="filters-panel">
+                <label class="checkbox">
+                    <input type="checkbox" id="filter-free"> უფასო
+                </label>
+                <label class="checkbox">
+                    <input type="checkbox" id="filter-cert"> სერტიფიკატით
+                </label>
+                <button class="dzebna" id="search-button">ძებნა</button>
+            </div>
+        </div>
+        
+        <div class="hero">
+            <img src="assets/6a271e3eb98daaae9f1831e6300ee89a94a3ac52.png" alt=""class= "hero-picture">
+            <div class="hero-text">
+                <p>ონლაინ სასწავლო პროგრამა</p>
+                <h1>ისწავლე სახლიდან გაუსვლელად</h1>
+            </div>
+        </div>
+        <div class="kategoriebi">
+            
+            <p>კატეგორიები</p>
+            <div>
+                <button class="arrow" id="wina"><img src="assets/left button.png" alt=""></button>
+                <div class="cards">
+                    <div class="cards-container" id="cards-container">
+                        <div class="card1" data-category="პროგრამირება">
+                            <img src="assets/programireba.svg" alt="">
+                            <p>პროგრამირება</p>
+                        </div>
+                        <div class="card2" data-category="ხელოვნური ინტელექტი">
+                            <img src="assets/xelovnuri-inteleqti.svg" alt="">
+                            <p>ხელოვნური ინტელექტი</p>
+                        </div>
+                        <div class="card3" data-category="მარკეტინგი">
+                            <img src="assets/marketingi.svg" alt="">
+                            <p>მარკეტინგი</p>
+                        </div>
+                        <div class="card4" data-category="UX/UI დიზაინი">
+                            <img src="assets/ux-ui.svg" alt="">
+                            <p>UX/UI დიზაინი</p>
+                        </div>
+                        <div class="card5" data-category="ვიდეო ედითინგი">
+                            <img src="assets/video-editingi.svg" alt="">
+                            <p>ვიდეო ედითინგი</p>
+                        </div>
+                        <div class="card6" data-category="გრაფიკული დიზაინი">
+                            <img src="assets/grafikuli-dizaini.svg" alt="">
+                            <p>გრაფიკული დიზაინი</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="arrow" id="shemdegi"><img src="assets/right button.png" alt=""></button>
+            </div>
+            
+        </div>
+        <div class="kursebi">
+            <p class="pop-kursebi">პოპულარული კურსები</p>
+            <div class="kursebi-scroll">
+                <div class="kursebi-container">
+
+                </div>
+            </div>
+        </div>
+        <div class="leqtorebi">
+            <div class="aarchie-leqtori">აარჩიე სასურველი ლექტორი</div>
+                
+                <div class="leqtorebis-fotoebi">
+                </div>
+                <button class="ipove-kursi-button" id="ipove-kursi-button">
+                    <p>იპოვე კურსი</p>
+                    <img src="assets/ipove-kursi-arrow.svg" alt="" class="ipove-kursi-arrow">
+                </button>
+            </div>
+            
+
+        </div>
+
+    <footer><p>EDUNITY</p></footer>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/common.js"></script>
+<script src="js/upload.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

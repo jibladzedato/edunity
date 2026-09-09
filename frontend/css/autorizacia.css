@@ -1,0 +1,213 @@
+.auth-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 20px 14px 40px;
+}
+html, body {
+    height: 100%;
+}
+.rest{
+    max-width: none;
+    margin: 0;
+}
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+header, footer {
+    flex-shrink: 0;
+}
+
+.rest {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.avtorizacia-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.avtorizacia-card {
+    width: 100%;
+    max-width: 500px;
+    background: #f5f8f4;
+    border-radius: 30px;
+    padding: 30px ;
+    font-family: "Noto Sans Georgian";
+}
+
+.avtorizacia-satauri {
+    text-align: center;
+}
+.avtorizacia-satauri h1 {
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.avtorizacia-inputebi {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.avtorizaciis-veli {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.velis-texti {
+    color: #0a0a0a;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.velis-input {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px;
+}
+.avtorizacia-iconebi {
+    width: 20px;
+    height: 20px;
+    /*ეს ფერის შეცვლა ჩემით არ დამიწერია*/
+    filter: invert(24%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(97%) contrast(88%);
+}
+
+.velis-input input {
+    border: none;
+    font-size: 15px;
+    color: #2e2e2e;
+    flex: 1;
+    font-family: inherit;
+}
+
+
+
+
+.avtorizacia-shecdoma {
+    color: #fc4f35;
+    font-size: 11px;
+}
+.avtorizacia-damimaxsovre {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.avtorizacia-damimaxsovre .checkbox {
+    color: #3a3a3a;
+    font-size: 14px;
+}
+
+.avtorizacia-dagaviwyda {
+    color: #5fb670; 
+
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    margin: 5px;
+}
+
+.avtorizacia-dadastureba {
+    width: 100%;
+    height: 50px;
+    border-radius: 30px;
+    background: #5fb670;
+    color: #fff;
+
+    font-size: 20px;
+    font-weight: 700;
+    font-family: "Noto Sans Georgian";
+    cursor: pointer;
+}
+
+
+.avtorizacia-an {
+    display: flex;
+    align-items: center;
+    text-align: center;
+
+    color: #9e9e9e;
+
+    font-size: 15px;
+}
+
+.an-xazi{
+    width: 100%;
+    border-bottom: 1px solid #9e9e9e7c;
+    padding-top: 5px;
+    
+    margin: 2px;
+}
+
+
+.avtorizacia-google {
+    width: 100%;
+    height: 50px;
+    border: 1px solid #ccc;
+    border-radius: 30px;
+    background: #fff;
+    color: #181818;
+
+    font-size: 20px;
+    font-weight: 600;
+    font-family: inherit;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; 
+    cursor: pointer; 
+}
+
+.avtorizacia-google img {
+    width: 20px;
+    height: 20px;
+}
+
+.avtorizacia-footer {
+    text-align: center;
+    font-size: 15px;
+
+    color: #3b3b3b;
+    margin-top: 15px;
+}
+
+.avtorizacia-registracia-shesvla {
+    color: #5fb670;
+}
+
+@media (min-width: 768px) {
+    .avtorizacia-container {
+        padding: 48px 14px 64px;
+        width: 100%;
+    }
+
+    .avtorizacia-card{
+        width: 100%;
+        max-width: 600px;
+        padding: 36px 34px 30px;
+        
+    }
+
+    .avtorizacia-satauri h1 {
+        font-size: 28px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .avtorizacia-card {
+        max-width: 800px;
+    }
+
+    
+}

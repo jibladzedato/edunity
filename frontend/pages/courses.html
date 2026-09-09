@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>კურსები | EDUNITY</title>
+    <link rel="stylesheet" href="../css/syle.css">
+    <link rel="stylesheet" href="../css/editor.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Days+One&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+
+    <header>
+        <div class="header-container">
+            <div class="logo-burger-container">
+                <a href="../index.html" class="logo">EDUNITY</a>
+                <img src="../assets/icon-menu.svg" class="burger" id="burger-button">
+            </div>
+            <nav id="nav">
+                <button class="close" id="close-button"><img src="../assets/icon-close.svg" class="close-image"></button>
+                <ul>
+                    <li><a href="../index.html">მთავარი</a></li>
+                    <li><a href="courses.html" class="active">კურსები</a></li>
+                    <li><a href="teaching.html">სწავლება</a></li>
+                    <li class="nav-auth-item"><a href="login.html" class="auth-slot">კაბინეტი</a></li>
+                </ul>
+            </nav>
+            <div class="desktop-auth">
+                <a href="login.html" class="auth-slot">შესვლა/რეგისტრაცია</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="rest">
+        <div class="search-container">
+            <div class="search-pirveli">
+                <div class="srch-input">
+                    <input type="text" id="search-input" placeholder="იპოვე სასურველი კურსი...">
+                </div>
+                <button class="filtri" aria-label="ფილტრი" id="filter-toggle">
+                    <img src="../assets/filter-alt-svgrepo-com.svg" alt="">
+                </button>
+            </div>
+            <div class="search-meore" id="filters-panel">
+                <label class="checkbox">
+                    <input type="checkbox" id="filter-free"> უფასო
+                </label>
+                <label class="checkbox">
+                    <input type="checkbox" id="filter-cert"> სერტიფიკატით
+                </label>
+                <button class="dzebna" id="search-button">ძებნა</button>
+            </div>
+        </div>
+
+        <div class="catalog-header">
+            <h1>ყველა კურსი</h1>
+            <div class="category-filters" id="category-filters"></div>
+        </div>
+
+        <div class="catalog-grid" id="catalog-grid"></div>
+    </div>
+
+    <footer><p>EDUNITY</p></footer>
+    <script src="../js/config.js"></script>
+    <script src="../js/categories.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/upload.js"></script>
+    <script src="../js/courses.js"></script>
+</body>
+</html>

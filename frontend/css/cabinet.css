@@ -1,0 +1,208 @@
+/* ==== Личный кабинет ==== */
+.cab-page {
+    padding: 30px 20px 60px;
+    font-family: "FiraGO";
+}
+
+.cab-profile {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #f5f8f4;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+}
+.cab-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #5fb670;
+    color: #fff;
+    font-size: 26px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+.cab-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.cab-profile-info {
+    flex: 1;
+    min-width: 180px;
+}
+.cab-name {
+    font-size: 20px;
+    color: #000;
+    margin-bottom: 2px;
+}
+.cab-email {
+    font-size: 13px;
+    color: #4d5756;
+    margin-bottom: 6px;
+}
+.cab-bio {
+    font-size: 13px;
+    color: #000;
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+.cab-badges {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.cab-role {
+    background: #eefbf5;
+    color: #1f6b3a;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+.cab-joined {
+    font-size: 12px;
+    color: #4d5756;
+}
+.cab-logout {
+    align-self: flex-start;
+}
+
+/* Вкладки */
+.cab-tabs {
+    display: flex;
+    gap: 6px;
+    border-bottom: 1px solid #e5e9e3;
+    margin-bottom: 22px;
+    overflow-x: auto;
+}
+.cab-tab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 10px 16px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4d5756;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.cab-tab:hover {
+    color: #000;
+}
+.cab-tab.active {
+    color: #000;
+    border-bottom-color: #5fb670;
+}
+
+.cab-empty {
+    background: #f5f8f4;
+    border-radius: 14px;
+    padding: 32px 20px;
+    text-align: center;
+}
+.cab-empty p {
+    font-size: 14px;
+    color: #4d5756;
+    margin-bottom: 14px;
+}
+
+/* Список курсов */
+.cab-course-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+.cab-course {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #fff;
+    border: 1px solid #e5e9e3;
+    border-radius: 14px;
+    padding: 14px;
+    flex-wrap: wrap;
+}
+.cab-course-cover {
+    width: 88px;
+    height: 62px;
+    border-radius: 10px;
+    background: #eef1ec;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.cab-course-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.cab-course-body {
+    flex: 1;
+    min-width: 160px;
+}
+.cab-course-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 3px;
+}
+.cab-course-author {
+    font-size: 12px;
+    color: #4d5756;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.cab-progress {
+    margin-top: 10px;
+}
+.cab-progress-bar {
+    height: 6px;
+    background: #ececec;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+.cab-progress-bar span {
+    display: block;
+    height: 100%;
+    background: #5fb670;
+    border-radius: 4px;
+}
+.cab-progress-text {
+    font-size: 11px;
+    color: #4d5756;
+}
+
+.cab-settings {
+    max-width: 520px;
+}
+.cab-settings input[type="password"] {
+    width: 100%;
+    border: 1px solid #dfe5e0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 14px;
+}
+.cab-settings input[type="password"]:focus {
+    outline: none;
+    border-color: #5fb670;
+}
+
+@media (min-width: 768px) {
+    .cab-page {
+        padding: 40px 40px 80px;
+    }
+}
