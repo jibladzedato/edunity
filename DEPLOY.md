@@ -24,10 +24,14 @@
 1. Зарегистрируйся на [cloudflare.com](https://cloudflare.com), открой раздел **R2**.
 2. Создай бакет, назови `edunity`.
 3. В настройках бакета включи **Public access** (r2.dev) — скопируй публичный адрес, вида `https://pub-xxxxx.r2.dev`.
+https://pub-9af00dbceda848a8b5f17327b7bfa544.r2.dev
 4. В разделе **Manage R2 API Tokens** создай токен с правами *Object Read & Write*. Сохрани:
    - Access Key ID
+   134c746ae30c4dbed29b8bbebd332c3e
    - Secret Access Key
+   26574d84c6f39333fd2c0d408fc51ec2c91525632f20da8c0dd07720ac5322a8
    - Endpoint (вида `https://<account_id>.r2.cloudflarestorage.com`)
+   https://0085ed79e038c181f642d830d526ba23.r2.cloudflarestorage.com
 
 ---
 
@@ -41,7 +45,7 @@ git init
 git add .
 git commit -m "EDUNITY"
 git branch -M main
-git remote add origin https://github.com/ТВОЙ_ЛОГИН/edunity.git
+git remote add origin https://github.com/jibladzedato/edunity.git
 git push -u origin main
 ```
 
