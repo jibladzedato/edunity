@@ -174,10 +174,37 @@ function setupActionButton() {
             EdunityUI.toast('კურსზე ჩაირიცხე', 'success');
             render();
         } catch (err) {
-            EdunityUI.toast(err.message);
+            // Почта не подтверждена — объясняем, что делать,
+            // и даём отправить письмо повторно прямо отсюда
+            if (err.data && err.data.emailNotVerified) {
+                showVerifyNeeded();
+            } else {
+                EdunityUI.toast(err.message);
+            }
             btn.disabled = false;
         }
     });
+}
+
+// Окно с объяснением, что нужно подтвердить почту
+async function showVerifyNeeded() {
+    const me = EdunityAuth.getUser();
+
+    const resend = await EdunityUI.confirm({
+        title: 'ჯერ დაადასტურე ელ.ფოსტა',
+        text: `კურსზე ჩასაწერად საჭიროა ელ.ფოსტის დადასტურება. ბმული გამოგზავნილია მისამართზე ${me && me.email ? me.email : ''}. შეამოწმე შემოსულები და სპამიც.`,
+        okText: 'ბმულის ხელახლა გამოგზავნა',
+        cancelText: 'დახურვა',
+    });
+
+    if (!resend) return;
+
+    try {
+        await EdunityAPI.resendVerification(me.email);
+        EdunityUI.toast('წერილი გამოგზავნილია', 'success');
+    } catch (err) {
+        EdunityUI.toast(err.message);
+    }
 }
 
 async function loadReviews() {

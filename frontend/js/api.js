@@ -127,6 +127,9 @@ const EdunityAPI = {
   },
 
   // --- админка ---
+  adminMailTest(to) {
+    return apiRequest("/admin/mail-test", { method: "POST", body: { to }, auth: true });
+  },
   adminStats() {
     return apiRequest("/admin/stats", { auth: true });
   },

@@ -31,7 +31,37 @@ async function renderOverview() {
                 <div class="stat-card"><div class="stat-value">${s.blocked}</div><div class="stat-label">დაბლოკილი</div></div>
                 <div class="stat-card"><div class="stat-value">${s.enrollments}</div><div class="stat-label">ჩარიცხვა</div></div>
             </div>
+
+            <h2 class="editor-h2">ფოსტის შემოწმება</h2>
+            <p class="editor-sub">გაგზავნის ტესტურ წერილს და აჩვენებს, რა უპასუხა ფოსტის სერვისმა.</p>
+            <div class="mail-test">
+                <input type="email" id="mail-test-to" placeholder="მისამართი შესამოწმებლად">
+                <button class="tool-btn primary" id="mail-test-btn">გაგზავნა</button>
+            </div>
+            <div id="mail-test-result"></div>
         `;
+
+        document.getElementById('mail-test-btn').addEventListener('click', async (e) => {
+            const to = document.getElementById('mail-test-to').value.trim();
+            if (!to) return;
+            e.target.disabled = true;
+            const box = document.getElementById('mail-test-result');
+            box.innerHTML = '<p class="editor-loading">იგზავნება...</p>';
+
+            try {
+                const r = await EdunityAPI.adminMailTest(to);
+                box.innerHTML = `
+                    <div class="mail-test-result ${r.sent ? 'ok' : 'fail'}">
+                        <div><b>რეჟიმი:</b> ${esc(r.method)}</div>
+                        <div><b>გამგზავნი:</b> ${esc(r.from)}</div>
+                        <div><b>შედეგი:</b> ${r.sent ? 'გაიგზავნა ✓' : r.loggedToConsole ? 'ფოსტა არ არის კონფიგურირებული — ბმული კონსოლშია' : 'ვერ გაიგზავნა'}</div>
+                        ${r.error ? `<div><b>შეცდომა:</b> ${esc(r.error)}</div>` : ''}
+                    </div>`;
+            } catch (err) {
+                box.innerHTML = `<div class="mail-test-result fail">${esc(err.message)}</div>`;
+            }
+            e.target.disabled = false;
+        });
     } catch (err) {
         main.innerHTML = `<h1 class="editor-h1">მიმოხილვა</h1><p class="editor-empty">${esc(err.message)}</p>`;
     }

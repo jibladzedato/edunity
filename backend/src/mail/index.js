@@ -8,11 +8,59 @@
 const nodemailer = require('nodemailer');
 
 const SMTP_HOST = process.env.SMTP_HOST;
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const FROM = process.env.MAIL_FROM || 'EDUNITY <no-reply@edunity.ge>';
+
+// Разбираем "EDUNITY <mail@example.com>" на имя и адрес
+function parseFrom(value) {
+  const m = String(value).match(/^\s*(.*?)\s*<([^>]+)>\s*$/);
+  if (m) return { name: m[1] || 'EDUNITY', email: m[2] };
+  return { name: 'EDUNITY', email: String(value).trim() };
+}
+
+// Отправка через HTTP API Brevo.
+//
+// Нужна потому, что бесплатный тариф Render блокирует исходящие SMTP-порты
+// (25, 465, 587) — письма просто отваливались по таймауту. HTTPS не блокируется.
+async function sendViaApi(to, subject, html) {
+  const sender = parseFrom(FROM);
+
+  const apiUrl = process.env.BREVO_API_URL || 'https://api.brevo.com/v3/smtp/email';
+  const res = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      'api-key': BREVO_API_KEY,
+      'content-type': 'application/json',
+      accept: 'application/json',
+    },
+    body: JSON.stringify({
+      sender,
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
+    signal: AbortSignal.timeout(15000),
+  });
+
+  if (!res.ok) {
+    let detail = '';
+    try {
+      const body = await res.json();
+      detail = body.message || JSON.stringify(body);
+    } catch (e) {
+      detail = await res.text().catch(() => '');
+    }
+    throw new Error(`Brevo API ${res.status}: ${detail}`);
+  }
+
+  return true;
+}
 
 let transporter = null;
 
-if (SMTP_HOST) {
+if (BREVO_API_KEY) {
+  console.log('[mail] отправка через HTTP API Brevo');
+} else if (SMTP_HOST) {
   transporter = nodemailer.createTransport({
     host: SMTP_HOST,
     port: Number(process.env.SMTP_PORT || 587),
@@ -29,7 +77,7 @@ if (SMTP_HOST) {
   });
   console.log('[mail] SMTP настроен:', SMTP_HOST);
 } else {
-  console.log('[mail] SMTP не настроен — ссылки будут печататься в консоль');
+  console.log('[mail] почта не настроена — ссылки будут печататься в консоль');
 }
 
 function layout(title, bodyHtml) {
@@ -57,6 +105,18 @@ function button(url, label) {
 }
 
 async function send(to, subject, html) {
+  // Приоритет у HTTP API: он работает там, где закрыт SMTP
+  if (BREVO_API_KEY) {
+    try {
+      await sendViaApi(to, subject, html);
+      console.log(`[mail] отправлено (API): ${to} — ${subject}`);
+      return { sent: true };
+    } catch (err) {
+      console.error('[mail] не удалось отправить (API):', err.message);
+      return { sent: false, error: err.message };
+    }
+  }
+
   if (!transporter) {
     console.log(`\n[mail] письмо для ${to}: ${subject}`);
     const link = (html.match(/https?:\/\/[^\s"<]+/) || [])[0];
@@ -108,4 +168,4 @@ function sendPasswordReset(to, name, url) {
   );
 }
 
-module.exports = { send, sendVerification, sendPasswordReset, isConfigured: !!transporter };
+module.exports = { send, sendVerification, sendPasswordReset, isConfigured: !!(BREVO_API_KEY || transporter) };

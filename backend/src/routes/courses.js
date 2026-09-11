@@ -2,6 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const pool = require('../db/pool');
 const { requireAuth, optionalAuth } = require('../middleware/auth');
+const { requireVerified } = require('../middleware/require-verified');
 const { checkCourseReadiness, enforceAfterChange } = require('../db/publish-rules');
 const { replaceFile, removeIfOrphan, stepFiles } = require('../db/uploads-cleanup');
 const { sanitizeHtml } = require('../db/sanitize');
@@ -221,6 +222,7 @@ router.get('/my', requireAuth, async (req, res) => {
 router.post(
   '/',
   requireAuth,
+  requireVerified,
   [body('title').trim().isLength({ min: 3 }).withMessage('კურსის სახელი უნდა შედგებოდეს მინიმუმ 3 სიმბოლოსგან')],
   async (req, res) => {
     const errors = validationResult(req);
@@ -633,7 +635,7 @@ router.get('/:id/analytics', requireAuth, async (req, res) => {
 // ==========================================================
 // Запись на курс
 // ==========================================================
-router.post('/:id/enroll', requireAuth, async (req, res) => {
+router.post('/:id/enroll', requireAuth, requireVerified, async (req, res) => {
   try {
     const c = await pool.query(`SELECT id FROM courses WHERE id = $1 AND status = 'published'`, [req.params.id]);
     if (c.rows.length === 0) return fail(res, 404, 'კურსი ვერ მოიძებნა');
@@ -687,7 +689,7 @@ router.get('/:id/reviews', async (req, res) => {
   }
 });
 
-router.post('/:id/reviews', requireAuth, async (req, res) => {
+router.post('/:id/reviews', requireAuth, requireVerified, async (req, res) => {
   const rating = Number(req.body.rating);
   if (!(rating >= 1 && rating <= 5)) return fail(res, 400, 'შეაფასე კურსი 1-დან 5-მდე');
 

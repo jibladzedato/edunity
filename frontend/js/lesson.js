@@ -57,6 +57,11 @@ function renderStepContent(step) {
         return `
             <div class="lesson-quiz">
                 <p class="lesson-quiz-question">${esc(c.question)}</p>
+                <p class="lesson-quiz-mode">${
+                    (c.multiple || (c.correct || []).length > 1)
+                        ? 'აირჩიე ყველა სწორი პასუხი'
+                        : 'აირჩიე ერთი პასუხი'
+                }</p>
                 <div class="lesson-quiz-options" id="quiz-options">
                     ${(c.options || [])
                         .map((opt, i) => `<button class="lesson-quiz-option" data-index="${i}">${esc(opt)}</button>`)
@@ -161,7 +166,9 @@ function attachStepBehaviour(step) {
 
     if (step.type === 'quiz') {
         const c = step.content || {};
-        const multiple = !!c.multiple;
+        // Старые тесты могли сохраниться без флага multiple, хотя правильных
+        // ответов в них несколько — ориентируемся и на их количество.
+        const multiple = !!c.multiple || (c.correct || []).length > 1;
         const optionsEl = document.getElementById('quiz-options');
         if (!optionsEl) return;
 
@@ -294,7 +301,25 @@ async function loadComments(stepId) {
                     await EdunityAPI.addComment(stepId, body);
                     loadComments(stepId);
                 } catch (err) {
-                    EdunityUI.toast(err.message);
+                    if (err.data && err.data.emailNotVerified) {
+                        const me = EdunityAuth.getUser();
+                        const resend = await EdunityUI.confirm({
+                            title: 'ჯერ დაადასტურე ელ.ფოსტა',
+                            text: 'კომენტარის დასაწერად საჭიროა ელ.ფოსტის დადასტურება.',
+                            okText: 'ბმულის ხელახლა გამოგზავნა',
+                            cancelText: 'დახურვა',
+                        });
+                        if (resend && me) {
+                            try {
+                                await EdunityAPI.resendVerification(me.email);
+                                EdunityUI.toast('წერილი გამოგზავნილია', 'success');
+                            } catch (e) {
+                                EdunityUI.toast(e.message);
+                            }
+                        }
+                    } else {
+                        EdunityUI.toast(err.message);
+                    }
                     sendBtn.disabled = false;
                 }
             });

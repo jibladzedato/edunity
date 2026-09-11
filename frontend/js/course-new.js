@@ -37,7 +37,9 @@ async function create() {
         const course = await EdunityAPI.createCourse(title);
         window.location.href = 'course-editor.html?id=' + course.id;
     } catch (err) {
-        errorEl.textContent = err.message;
+        errorEl.textContent = err.data && err.data.emailNotVerified
+            ? 'კურსის შესაქმნელად ჯერ დაადასტურე ელ.ფოსტა — ბმული გამოგზავნილია შენს მისამართზე'
+            : err.message;
         errorEl.hidden = false;
         createBtn.disabled = false;
         createBtn.textContent = 'კურსის შექმნა';

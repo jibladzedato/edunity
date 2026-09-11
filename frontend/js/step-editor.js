@@ -124,11 +124,9 @@ function renderStepForm(step) {
                 <label for="c-question">კითხვა</label>
                 <textarea id="c-question" rows="3">${esc(c.question)}</textarea>
             </div>
-            <label class="editor-checkbox">
-                <input type="checkbox" id="c-multiple" ${c.multiple ? 'checked' : ''}> რამდენიმე სწორი პასუხი
-            </label>
             <div class="editor-field">
-                <label>პასუხის ვარიანტები <span class="editor-hint">მონიშნე სწორი</span></label>
+                <label>პასუხის ვარიანტები <span class="editor-hint">მონიშნე ყველა სწორი პასუხი</span></label>
+                <p class="quiz-mode-hint" id="quiz-mode-hint"></p>
                 <div id="quiz-options">
                     ${options
                         .map(
@@ -204,7 +202,10 @@ function collectContent(step) {
             question: document.getElementById('c-question').value.trim(),
             options,
             correct,
-            multiple: document.getElementById('c-multiple').checked,
+            // Тип теста определяется автоматически: отмечено больше одного
+            // правильного ответа — значит ученик тоже сможет выбрать несколько.
+            // Раньше для этого была отдельная галочка, и её легко было забыть.
+            multiple: correct.length > 1,
         };
     }
     if (step.type === 'code') {
@@ -261,6 +262,30 @@ function renderMain() {
     document.querySelectorAll('.step-tab[data-step-id]').forEach((tab) => {
         tab.addEventListener('click', () => selectStep(Number(tab.dataset.stepId)));
     });
+
+    // Подсказка о типе теста — обновляется при каждой отметке
+    if (step && step.type === 'quiz') {
+        const hint = document.getElementById('quiz-mode-hint');
+
+        function updateQuizHint() {
+            const n = document.querySelectorAll('.quiz-correct:checked').length;
+            if (n === 0) {
+                hint.textContent = 'ჯერ არცერთი სწორი პასუხი არ არის მონიშნული';
+                hint.className = 'quiz-mode-hint warn';
+            } else if (n === 1) {
+                hint.textContent = 'ერთი სწორი პასუხი — მოსწავლე აირჩევს ერთს';
+                hint.className = 'quiz-mode-hint';
+            } else {
+                hint.textContent = `${n} სწორი პასუხი — მოსწავლე შეძლებს რამდენიმეს მონიშვნას`;
+                hint.className = 'quiz-mode-hint multi';
+            }
+        }
+
+        document.querySelectorAll('.quiz-correct').forEach((cb) => {
+            cb.addEventListener('change', updateQuizHint);
+        });
+        updateQuizHint();
+    }
 
     // Управление списком тестов
     if (step && step.type === 'code') {

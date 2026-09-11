@@ -1,6 +1,7 @@
 const express = require('express');
 const pool = require('../db/pool');
 const { requireAuth, optionalAuth } = require('../middleware/auth');
+const { requireVerified } = require('../middleware/require-verified');
 const { helpers } = require('./courses');
 const { enforceAfterChange } = require('../db/publish-rules');
 const { removeIfOrphan, stepFiles } = require('../db/uploads-cleanup');
@@ -415,7 +416,7 @@ router.get('/steps/:id/comments', async (req, res) => {
   }
 });
 
-router.post('/steps/:id/comments', requireAuth, async (req, res) => {
+router.post('/steps/:id/comments', requireAuth, requireVerified, async (req, res) => {
   const body = (req.body.body || '').trim();
   if (!body) return fail(res, 400, 'კომენტარი ცარიელია');
 

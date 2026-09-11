@@ -2,6 +2,7 @@ const express = require('express');
 const pool = require('../db/pool');
 const { requireAuth } = require('../middleware/auth');
 const { previewDeletion, deleteAccount } = require('../db/delete-account');
+const mail = require('../mail');
 
 const router = express.Router();
 
@@ -233,6 +234,33 @@ router.delete('/users/:id', async (req, res) => {
     console.error('Ошибка удаления пользователя:', err);
     res.status(500).json({ error: 'სერვერის შეცდომა' });
   }
+});
+
+// Проверка настроек почты: отправляет тестовое письмо и показывает,
+// что именно ответил почтовый сервис. Избавляет от гадания по логам.
+router.post('/mail-test', async (req, res) => {
+  const to = (req.body.to || '').trim();
+  if (!to) return res.status(400).json({ error: 'მიუთითე მისამართი' });
+
+  const method = process.env.BREVO_API_KEY
+    ? 'HTTP API Brevo'
+    : process.env.SMTP_HOST
+    ? 'SMTP: ' + process.env.SMTP_HOST
+    : 'не настроено (ссылки идут в консоль)';
+
+  const result = await mail.send(
+    to,
+    'ტესტური წერილი — EDUNITY',
+    '<p>თუ ეს წერილი მოვიდა, ფოსტის პარამეტრები სწორია.</p>'
+  );
+
+  res.json({
+    method,
+    from: process.env.MAIL_FROM || '(не задан)',
+    sent: !!result.sent,
+    error: result.error || null,
+    loggedToConsole: !!result.logged,
+  });
 });
 
 // ==========================================================
