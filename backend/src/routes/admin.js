@@ -1,6 +1,7 @@
 const express = require('express');
 const pool = require('../db/pool');
 const { requireAuth } = require('../middleware/auth');
+const { previewDeletion, deleteAccount } = require('../db/delete-account');
 
 const router = express.Router();
 
@@ -197,6 +198,39 @@ router.get('/users', async (req, res) => {
     );
   } catch (err) {
     console.error('Ошибка получения пользователей:', err);
+    res.status(500).json({ error: 'სერვერის შეცდომა' });
+  }
+});
+
+// Что исчезнет вместе с пользователем
+router.get('/users/:id/deletion-preview', async (req, res) => {
+  try {
+    res.json(await previewDeletion(req.params.id));
+  } catch (err) {
+    res.status(500).json({ error: 'სერვერის შეცდომა' });
+  }
+});
+
+// Удалить пользователя со всеми его данными
+router.delete('/users/:id', async (req, res) => {
+  const targetId = Number(req.params.id);
+
+  if (targetId === req.userId) {
+    return res.status(400).json({ error: 'საკუთარი ანგარიში წაშალე პარამეტრებიდან' });
+  }
+
+  try {
+    const target = await pool.query('SELECT id, role FROM users WHERE id = $1', [targetId]);
+    if (target.rows.length === 0) return res.status(404).json({ error: 'მომხმარებელი ვერ მოიძებნა' });
+
+    if (target.rows[0].role === 'admin') {
+      return res.status(409).json({ error: 'ადმინისტრატორის წაშლა შეუძლებელია — ჯერ შეუცვალე როლი' });
+    }
+
+    const result = await deleteAccount(targetId);
+    res.json({ ok: true, ...result });
+  } catch (err) {
+    console.error('Ошибка удаления пользователя:', err);
     res.status(500).json({ error: 'სერვერის შეცდომა' });
   }
 });

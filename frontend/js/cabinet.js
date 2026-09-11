@@ -32,6 +32,26 @@ function renderProfile() {
         <button class="studio-btn danger cab-logout" id="cab-logout">გასვლა</button>
     `;
 
+    // Напоминание подтвердить почту
+    if (user.emailVerified === false) {
+        const banner = document.createElement('div');
+        banner.className = 'verify-banner';
+        banner.innerHTML = `
+            <span>ელ.ფოსტა ჯერ არ არის დადასტურებული — შეამოწმე შემოსული წერილები.</span>
+            <button class="studio-btn" id="resend-verify">ბმულის ხელახლა გამოგზავნა</button>`;
+        profileEl.insertAdjacentElement('afterend', banner);
+
+        document.getElementById('resend-verify').addEventListener('click', async (e) => {
+            e.target.disabled = true;
+            try {
+                await EdunityAPI.resendVerification(user.email);
+                EdunityUI.toast('წერილი გამოგზავნილია', 'success');
+            } catch (err) {
+                EdunityUI.toast(err.message);
+            }
+        });
+    }
+
     document.getElementById('cab-logout').addEventListener('click', () => {
         EdunityAuth.clear();
         window.location.href = '../index.html';
@@ -237,6 +257,14 @@ function renderSettings() {
             <div class="editor-actions">
                 <button class="editor-save-btn" id="save-password">პაროლის შეცვლა</button>
             </div>
+
+            <h2 class="editor-h2" style="color:#b5391c">ანგარიშის წაშლა</h2>
+            <div class="danger-zone">
+                <p>წაიშლება სამუდამოდ: შენი პროფილი, კურსები, კომენტარები, შეფასებები, პროგრესი,
+                   სერტიფიკატები და ატვირთული ფაილები. ამის დაბრუნება შეუძლებელია.</p>
+                <div id="deletion-preview" class="deletion-preview"></div>
+                <button class="studio-btn danger" id="delete-account">ანგარიშის წაშლა</button>
+            </div>
         </div>
     `;
 
@@ -263,6 +291,54 @@ function renderSettings() {
             EdunityUI.toast(err.message);
         } finally {
             e.target.disabled = false;
+        }
+    });
+
+    // Показываем, что именно исчезнет
+    EdunityAPI.deletionPreview()
+        .then((p) => {
+            const box = document.getElementById('deletion-preview');
+            if (!box) return;
+            const lines = [];
+            if (p.authoredCourses.length) {
+                lines.push(`<strong>${p.authoredCourses.length} შენი კურსი</strong> — ${esc(p.authoredCourses.map((c) => c.title).join(', '))}`);
+                if (p.affectedStudents > 0) {
+                    lines.push(`<span class="deletion-warning">${p.affectedStudents} მოსწავლე დაკარგავს წვდომას ამ კურსებზე</span>`);
+                }
+            }
+            if (p.enrollments) lines.push(`${p.enrollments} კურსზე ჩარიცხვა`);
+            if (p.comments) lines.push(`${p.comments} კომენტარი`);
+            if (p.reviews) lines.push(`${p.reviews} შეფასება`);
+            if (p.certificates) lines.push(`${p.certificates} სერტიფიკატი`);
+            if (p.files) lines.push(`${p.files} ატვირთული ფაილი`);
+            box.innerHTML = lines.length ? '<ul><li>' + lines.join('</li><li>') + '</li></ul>' : '';
+        })
+        .catch(() => {});
+
+    document.getElementById('delete-account').addEventListener('click', async () => {
+        const confirmed = await EdunityUI.confirm({
+            title: 'ნამდვილად წაშალო ანგარიში?',
+            text: 'ყველა მონაცემი სამუდამოდ წაიშლება. ამის დაბრუნება შეუძლებელია.',
+            okText: 'გავაგრძელოთ',
+            danger: true,
+        });
+        if (!confirmed) return;
+
+        const password = await EdunityUI.prompt({
+            title: 'დაადასტურე პაროლით',
+            text: 'უსაფრთხოებისთვის შეიყვანე შენი პაროლი.',
+            placeholder: 'პაროლი',
+            okText: 'ანგარიშის წაშლა',
+        });
+        if (!password) return;
+
+        try {
+            await EdunityAPI.deleteMyAccount(password);
+            EdunityAuth.clear();
+            alert('ანგარიში წაშლილია.');
+            window.location.href = '../index.html';
+        } catch (err) {
+            EdunityUI.toast(err.message);
         }
     });
 

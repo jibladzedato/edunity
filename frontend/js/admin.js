@@ -247,11 +247,44 @@ async function renderUsers() {
                             <span class="admin-row-title">${esc(u.name)}</span>
                             <span class="admin-row-meta">${esc(u.email)} · ${ROLE_LABELS[u.role] || esc(u.role)} · ${u.coursesCount} კურსი</span>
                         </div>
+                        ${u.role === 'admin' ? '' : `<div class="admin-row-actions">
+                            <button class="tool-btn danger" data-deluser="${u.id}" data-name="${esc(u.name)}">წაშლა</button>
+                        </div>`}
                     </div>`
                     )
                     .join('')}
             </div>
         `;
+        main.querySelectorAll('[data-deluser]').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                const id = Number(btn.dataset.deluser);
+                let preview = null;
+                try {
+                    preview = await EdunityAPI.adminUserDeletionPreview(id);
+                } catch (e) {}
+
+                const details = preview
+                    ? `კურსები: ${preview.authoredCourses.length}, კომენტარები: ${preview.comments}, შეფასებები: ${preview.reviews}` +
+                      (preview.affectedStudents ? `. ამ კურსებზე ${preview.affectedStudents} მოსწავლეა.` : '')
+                    : '';
+
+                const ok = await EdunityUI.confirm({
+                    title: `წაიშალოს «${btn.dataset.name}»?`,
+                    text: `ყველა მონაცემი სამუდამოდ წაიშლება. ${details}`,
+                    okText: 'წაშლა',
+                    danger: true,
+                });
+                if (!ok) return;
+
+                try {
+                    await EdunityAPI.adminDeleteUser(id);
+                    EdunityUI.toast('მომხმარებელი წაშლილია', 'success');
+                    renderUsers();
+                } catch (err) {
+                    EdunityUI.toast(err.message);
+                }
+            });
+        });
     } catch (err) {
         main.innerHTML = `<h1 class="editor-h1">მომხმარებლები</h1><p class="editor-empty">${esc(err.message)}</p>`;
     }

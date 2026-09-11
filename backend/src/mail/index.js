@@ -21,6 +21,11 @@ if (SMTP_HOST) {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    // Без таймаутов зависший SMTP держит запрос бесконечно —
+    // пользователь видит вечную «загрузку» при регистрации.
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
   });
   console.log('[mail] SMTP настроен:', SMTP_HOST);
 } else {
@@ -60,7 +65,12 @@ async function send(to, subject, html) {
   }
 
   try {
-    await transporter.sendMail({ from: FROM, to, subject, html });
+    // Страховка поверх таймаутов транспорта
+    await Promise.race([
+      transporter.sendMail({ from: FROM, to, subject, html }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('превышено время ожидания SMTP')), 20000)),
+    ]);
+    console.log(`[mail] отправлено: ${to} — ${subject}`);
     return { sent: true };
   } catch (err) {
     // Письмо не ушло — но регистрацию из-за этого ронять нельзя

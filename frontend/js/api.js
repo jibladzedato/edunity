@@ -66,6 +66,18 @@ const EdunityAPI = {
   login(email, password) {
     return apiRequest("/auth/login", { method: "POST", body: { email, password } });
   },
+  verifyEmail(token) {
+    return apiRequest("/auth/verify/" + encodeURIComponent(token), { method: "POST" });
+  },
+  resendVerification(email) {
+    return apiRequest("/auth/verify/resend", { method: "POST", body: { email } });
+  },
+  forgotPassword(email) {
+    return apiRequest("/auth/forgot", { method: "POST", body: { email } });
+  },
+  resetPassword(token, password) {
+    return apiRequest("/auth/reset/" + encodeURIComponent(token), { method: "POST", body: { password } });
+  },
 
   // --- профиль ---
   me() {
@@ -76,6 +88,18 @@ const EdunityAPI = {
   },
   changePassword(currentPassword, newPassword) {
     return apiRequest("/users/me/password", { method: "POST", body: { currentPassword, newPassword }, auth: true });
+  },
+  deletionPreview() {
+    return apiRequest("/users/me/deletion-preview", { auth: true });
+  },
+  deleteMyAccount(password) {
+    return apiRequest("/users/me", { method: "DELETE", body: { password }, auth: true });
+  },
+  adminUserDeletionPreview(id) {
+    return apiRequest("/admin/users/" + id + "/deletion-preview", { auth: true });
+  },
+  adminDeleteUser(id) {
+    return apiRequest("/admin/users/" + id, { method: "DELETE", auth: true });
   },
   myEnrollments() {
     return apiRequest("/users/me/enrollments", { auth: true });

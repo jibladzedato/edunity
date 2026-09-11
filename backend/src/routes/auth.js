@@ -108,20 +108,16 @@ router.post(
       const user = result.rows[0];
       const token = signToken(user);
 
-      // Письмо с подтверждением почты. Если отправка не удалась,
-      // регистрацию не отменяем — ссылку можно запросить повторно.
-      try {
-        const verifyToken = await createToken(user.id, 'verify_email', 24);
-        await mail.sendVerification(
-          user.email,
-          user.name,
-          `${siteUrl()}/pages/verify-email.html?token=${verifyToken}`
-        );
-      } catch (e) {
-        console.error('Не удалось отправить письмо подтверждения:', e.message);
-      }
-
+      // Ответ отдаём сразу, письмо уходит следом.
+      // Раньше здесь стоял await: если почтовый сервер не отвечал,
+      // регистрация «висела» до бесконечности.
       res.status(201).json({ token, user: toPublicUser(user) });
+
+      createToken(user.id, 'verify_email', 24)
+        .then((verifyToken) =>
+          mail.sendVerification(user.email, user.name, `${siteUrl()}/pages/verify-email.html?token=${verifyToken}`)
+        )
+        .catch((e) => console.error('[auth] письмо подтверждения:', e.message));
     } catch (err) {
       console.error('Ошибка регистрации:', err);
       res.status(500).json({ error: 'სერვერის შეცდომა, სცადეთ მოგვიანებით' });
@@ -193,14 +189,17 @@ router.post('/verify/resend', mailLimiter, async (req, res) => {
     const r = await pool.query('SELECT id, name, email, email_verified FROM users WHERE LOWER(email) = $1', [email]);
     const user = r.rows[0];
 
-    if (user && !user.email_verified) {
-      const token = await createToken(user.id, 'verify_email', 24);
-      await mail.sendVerification(user.email, user.name, `${siteUrl()}/pages/verify-email.html?token=${token}`);
-    }
-
     // Ответ одинаковый в любом случае — чтобы нельзя было
     // проверять, есть ли такая почта в базе
     res.json({ ok: true });
+
+    if (user && !user.email_verified) {
+      createToken(user.id, 'verify_email', 24)
+        .then((token) =>
+          mail.sendVerification(user.email, user.name, `${siteUrl()}/pages/verify-email.html?token=${token}`)
+        )
+        .catch((e) => console.error('[auth] повторное письмо:', e.message));
+    }
   } catch (err) {
     console.error('Ошибка повторной отправки:', err);
     res.status(500).json({ error: 'სერვერის შეცდომა' });
@@ -218,14 +217,17 @@ router.post('/forgot', mailLimiter, async (req, res) => {
     const r = await pool.query('SELECT id, name, email FROM users WHERE LOWER(email) = $1', [email]);
     const user = r.rows[0];
 
-    if (user) {
-      const token = await createToken(user.id, 'reset_password', 1);
-      await mail.sendPasswordReset(user.email, user.name, `${siteUrl()}/pages/reset-password.html?token=${token}`);
-    }
-
     // Не сообщаем, существует ли адрес — иначе форма превращается
     // в инструмент для сбора зарегистрированных почт
     res.json({ ok: true });
+
+    if (user) {
+      createToken(user.id, 'reset_password', 1)
+        .then((token) =>
+          mail.sendPasswordReset(user.email, user.name, `${siteUrl()}/pages/reset-password.html?token=${token}`)
+        )
+        .catch((e) => console.error('[auth] письмо сброса пароля:', e.message));
+    }
   } catch (err) {
     console.error('Ошибка восстановления пароля:', err);
     res.status(500).json({ error: 'სერვერის შეცდომა' });

@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const pool = require('../db/pool');
 const { requireAuth } = require('../middleware/auth');
 const { replaceFile } = require('../db/uploads-cleanup');
+const { previewDeletion, deleteAccount } = require('../db/delete-account');
 
 const router = express.Router();
 const SALT_ROUNDS = 12;
@@ -134,6 +135,47 @@ router.get('/me/enrollments', requireAuth, async (req, res) => {
     );
   } catch (err) {
     console.error('Ошибка получения записей:', err);
+    res.status(500).json({ error: 'სერვერის შეცდომა' });
+  }
+});
+
+// GET /api/users/me/deletion-preview — что исчезнет вместе с аккаунтом
+router.get('/me/deletion-preview', requireAuth, async (req, res) => {
+  try {
+    res.json(await previewDeletion(req.userId));
+  } catch (err) {
+    console.error('Ошибка предпросмотра удаления:', err);
+    res.status(500).json({ error: 'სერვერის შეცდომა' });
+  }
+});
+
+// DELETE /api/users/me — удалить свой аккаунт (нужен пароль)
+router.delete('/me', requireAuth, async (req, res) => {
+  const password = req.body.password || '';
+  if (!password) return res.status(400).json({ error: 'დაადასტურე პაროლით' });
+
+  try {
+    const r = await pool.query('SELECT password_hash, role FROM users WHERE id = $1', [req.userId]);
+    if (r.rows.length === 0) return res.status(404).json({ error: 'მომხმარებელი ვერ მოიძებნა' });
+
+    const ok = await bcrypt.compare(password, r.rows[0].password_hash);
+    if (!ok) return res.status(401).json({ error: 'პაროლი არასწორია' });
+
+    // Последний администратор не должен удалять себя — иначе
+    // сайтом станет некому управлять
+    if (r.rows[0].role === 'admin') {
+      const admins = await pool.query("SELECT COUNT(*) AS n FROM users WHERE role = 'admin'");
+      if (Number(admins.rows[0].n) <= 1) {
+        return res.status(409).json({
+          error: 'შენ ერთადერთი ადმინისტრატორი ხარ — ჯერ დანიშნე სხვა',
+        });
+      }
+    }
+
+    const result = await deleteAccount(req.userId);
+    res.json({ ok: true, ...result });
+  } catch (err) {
+    console.error('Ошибка удаления аккаунта:', err);
     res.status(500).json({ error: 'სერვერის შეცდომა' });
   }
 });
