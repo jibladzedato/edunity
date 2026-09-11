@@ -10,9 +10,14 @@ const { loginLimiter, registerLimiter, mailLimiter } = require('../middleware/ra
 const router = express.Router();
 const SALT_ROUNDS = 12;
 
-// Адрес сайта — нужен, чтобы собрать ссылку в письме
+// Адрес сайта — нужен, чтобы собрать ссылку в письме.
+//
+// Это НЕ то же самое, что FRONTEND_ORIGIN: для CORS нужен только домен
+// (https://user.github.io), а ссылка в письме должна вести в папку, где
+// реально лежит сайт (https://user.github.io/edunity/frontend).
+// Поэтому адрес для писем задаётся отдельно, через SITE_URL.
 function siteUrl() {
-  return (process.env.FRONTEND_ORIGIN || 'http://localhost:5500').replace(/\/$/, '');
+  return (process.env.SITE_URL || process.env.FRONTEND_ORIGIN || 'http://localhost:5500').replace(/\/$/, '');
 }
 
 // В базе храним только хеш токена
