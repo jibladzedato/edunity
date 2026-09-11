@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const pool = require('./src/db/pool');
 
-const FILES = ['schema.sql', 'migrate.sql', 'migrate2.sql', 'migrate3.sql', 'migrate4.sql'];
+const FILES = ['schema.sql', 'migrate.sql', 'migrate2.sql', 'migrate3.sql', 'migrate4.sql', 'migrate5.sql'];
 
 (async () => {
   for (const file of FILES) {

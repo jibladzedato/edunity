@@ -16,6 +16,7 @@ function publicUser(u) {
     avatarUrl: u.avatar_url,
     bio: u.bio,
     createdAt: u.created_at,
+    emailVerified: u.email_verified,
   };
 }
 
