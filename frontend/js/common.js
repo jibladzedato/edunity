@@ -32,7 +32,7 @@
 
   // Ссылка на админку — только для администраторов
   const cachedUser = EdunityAuth.getUser();
-  if (EdunityAuth.isLoggedIn() && cachedUser && cachedUser.role === 'admin') {
+  if (EdunityAuth.isLoggedIn() && cachedUser && (cachedUser.role === 'admin' || cachedUser.role === 'owner')) {
     const navList = document.querySelector('#nav ul');
     if (navList && !document.getElementById('admin-nav-link')) {
       const li = document.createElement('li');

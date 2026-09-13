@@ -8,6 +8,8 @@ function esc(s) {
 
 const params = new URLSearchParams(window.location.search);
 let allCourses = [];
+let currentPage = 1;
+let totalPages = 1;
 let activeCategory = params.get('category') || 'ყველა';
 
 const searchInput = document.getElementById('search-input');
@@ -33,7 +35,7 @@ function renderCategoryChips() {
         chip.addEventListener('click', () => {
             activeCategory = cat;
             renderCategoryChips();
-            applyFilters();
+            applyFilters(1);
         });
         categoryFiltersEl.appendChild(chip);
     });
@@ -94,43 +96,89 @@ function renderCourseCard(course) {
     return card;
 }
 
-function applyFilters() {
-    const query = searchInput.value.trim().toLowerCase();
-    const onlyFree = filterFree.checked;
-    const onlyCert = filterCert.checked;
+// Фильтрация теперь на сервере: браузер получает только нужную страницу,
+// а не весь каталог целиком.
+let searchTimer = null;
 
-    const filtered = allCourses.filter((c) => {
-        const matchesQuery = !query || (c.title || '').toLowerCase().includes(query);
-        const matchesFree = !onlyFree || c.price === 0;
-        const matchesCert = !onlyCert || c.hasCertificate === true;
-        const matchesCategory = activeCategory === 'ყველა' || c.category === activeCategory;
-        return matchesQuery && matchesFree && matchesCert && matchesCategory;
-    });
+async function applyFilters(page = 1) {
+    currentPage = page;
+    catalogGrid.innerHTML = '<p class="catalog-empty">იტვირთება...</p>';
 
-    catalogGrid.innerHTML = '';
-    if (filtered.length === 0) {
-        catalogGrid.innerHTML = '<p class="catalog-empty">ვერაფერი მოიძებნა ამ პარამეტრებით</p>';
-        return;
+    const query = {};
+    const q = searchInput.value.trim();
+    if (q) query.q = q;
+    if (filterFree.checked) query.free = '1';
+    if (filterCert.checked) query.cert = '1';
+    if (activeCategory !== 'ყველა') query.category = activeCategory;
+    query.page = page;
+    query.limit = 12;
+
+    try {
+        const data = await EdunityAPI.courses(query);
+        allCourses = data.courses;
+        totalPages = data.pages;
+
+        catalogGrid.innerHTML = '';
+        if (allCourses.length === 0) {
+            catalogGrid.innerHTML = '<p class="catalog-empty">ვერაფერი მოიძებნა ამ პარამეტრებით</p>';
+            renderPagination(0);
+            return;
+        }
+
+        allCourses.forEach((course) => catalogGrid.appendChild(renderCourseCard(course)));
+        renderPagination(data.total);
+    } catch (err) {
+        catalogGrid.innerHTML = `<p class="catalog-empty">ვერ ჩაიტვირთა: ${esc(err.message)}</p>`;
     }
-    filtered.forEach((course) => catalogGrid.appendChild(renderCourseCard(course)));
 }
 
-searchButton.addEventListener('click', applyFilters);
-filterToggle.addEventListener('click', applyFilters);
-filterFree.addEventListener('change', applyFilters);
-filterCert.addEventListener('change', applyFilters);
+function renderPagination(total) {
+    let box = document.getElementById('catalog-pagination');
+    if (!box) {
+        box = document.createElement('div');
+        box.id = 'catalog-pagination';
+        box.className = 'catalog-pagination';
+        catalogGrid.parentElement.appendChild(box);
+    }
+
+    if (totalPages <= 1) {
+        box.innerHTML = total ? `<span class="pagination-info">${total} კურსი</span>` : '';
+        return;
+    }
+
+    box.innerHTML = `
+        <button class="studio-btn" ${currentPage === 1 ? 'disabled' : ''} data-page="${currentPage - 1}">← წინა</button>
+        <span class="pagination-info">გვერდი ${currentPage} / ${totalPages} · სულ ${total} კურსი</span>
+        <button class="studio-btn" ${currentPage === totalPages ? 'disabled' : ''} data-page="${currentPage + 1}">შემდეგი →</button>
+    `;
+
+    box.querySelectorAll('[data-page]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            applyFilters(Number(btn.dataset.page));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+}
+
+searchButton.addEventListener('click', () => applyFilters(1));
+filterToggle.addEventListener('click', () => applyFilters(1));
+filterFree.addEventListener('change', () => applyFilters(1));
+filterCert.addEventListener('change', () => applyFilters(1));
 searchInput.addEventListener('keyup', (e) => {
-    if (e.key === 'Enter') applyFilters();
+    if (e.key === 'Enter') applyFilters(1);
 });
-searchInput.addEventListener('input', applyFilters);
+// Запрос уходит через полсекунды после последней буквы
+searchInput.addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => applyFilters(1), 500);
+});
 
 async function load() {
     catalogGrid.innerHTML = '<p class="catalog-empty">იტვირთება...</p>';
     try {
         CATEGORIES = await loadCategories();
-        allCourses = await EdunityAPI.courses();
         renderCategoryChips();
-        applyFilters();
+        await applyFilters(1);
     } catch (err) {
         catalogGrid.innerHTML = `<p class="catalog-empty">ვერ ჩაიტვირთა: ${esc(err.message)}</p>`;
     }

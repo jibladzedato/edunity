@@ -3,6 +3,17 @@
 //   edunity_token — JWT
 //   edunity_user  — закешированные данные пользователя (name, email, ...)
 
+// Если config.js не подключён (страница обновилась не полностью), без этой
+// подстраховки всё падало с невнятным «Cannot read properties of undefined».
+if (!window.EDUNITY_CONFIG) {
+  console.error(
+    '[EDUNITY] config.js не загружен — проверь, что <script src=".../js/config.js"> идёт первым на этой странице'
+  );
+  const host = window.location.hostname || 'localhost';
+  const base = window.location.protocol + '//' + host + ':4000/api';
+  window.EDUNITY_CONFIG = { API_BASE_URL: base, SERVER_URL: base.replace(/\/api\/?$/, '') };
+}
+
 const TOKEN_KEY = "edunity_token";
 const USER_KEY = "edunity_user";
 
@@ -127,6 +138,15 @@ const EdunityAPI = {
   },
 
   // --- админка ---
+  adminMe() {
+    return apiRequest("/admin/me", { auth: true });
+  },
+  adminSetRole(id, role) {
+    return apiRequest("/admin/users/" + id + "/role", { method: "PATCH", body: { role }, auth: true });
+  },
+  storageUsage() {
+    return apiRequest("/uploads/storage", { auth: true });
+  },
   adminMailTest(to) {
     return apiRequest("/admin/mail-test", { method: "POST", body: { to }, auth: true });
   },

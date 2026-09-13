@@ -16,6 +16,20 @@ const VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime'];
 const MAX_IMAGE = 8 * 1024 * 1024; // 8 МБ
 const MAX_VIDEO = 300 * 1024 * 1024; // 300 МБ
 
+// Сколько места отводится одному пользователю. Без этого ограничения
+// один человек мог бы занять всё хранилище и заблокировать остальных.
+const QUOTA_BYTES = Number(process.env.UPLOAD_QUOTA_MB || 500) * 1024 * 1024;
+
+async function usedBytes(userId) {
+  const r = await pool.query('SELECT COALESCE(SUM(size_bytes), 0) AS n FROM uploads WHERE user_id = $1', [userId]);
+  return Number(r.rows[0].n);
+}
+
+function human(bytes) {
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + ' KB';
+  return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+}
+
 // Файл сначала пишется во временную папку, потом хранилище само решает,
 // оставить его на диске или отправить в облако.
 const tempStorage = multer.diskStorage({
@@ -51,6 +65,17 @@ function handleUpload(uploader, kind, maxSize) {
       if (!req.file) return res.status(400).json({ error: 'ფაილი არ არის არჩეული' });
 
       try {
+        // Проверяем квоту до сохранения — иначе файл уже занял бы место
+        const used = await usedBytes(req.userId);
+        if (used + req.file.size > QUOTA_BYTES) {
+          await fs.unlink(req.file.path).catch(() => {});
+          return res.status(413).json({
+            error: `ადგილი ამოიწურა: გამოყენებულია ${human(used)} ${human(QUOTA_BYTES)}-დან. წაშალე ძველი ფაილები.`,
+            usedBytes: used,
+            quotaBytes: QUOTA_BYTES,
+          });
+        }
+
         const key = storage.makeKey(req.file.originalname);
         const url = await storage.save(req.file.path, key, req.file.mimetype);
 
@@ -133,7 +158,14 @@ router.get('/storage', requireAuth, async (req, res) => {
       'SELECT COUNT(*) AS files, COALESCE(SUM(size_bytes), 0) AS bytes FROM uploads WHERE user_id = $1',
       [req.userId]
     );
-    res.json({ files: Number(r.rows[0].files), bytes: Number(r.rows[0].bytes) });
+    const bytes = Number(r.rows[0].bytes);
+    res.json({
+      files: Number(r.rows[0].files),
+      bytes,
+      quotaBytes: QUOTA_BYTES,
+      freeBytes: Math.max(0, QUOTA_BYTES - bytes),
+      percentUsed: Math.round((bytes / QUOTA_BYTES) * 100),
+    });
   } catch (err) {
     res.status(500).json({ error: 'სერვერის შეცდომა' });
   }

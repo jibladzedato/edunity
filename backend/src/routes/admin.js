@@ -10,9 +10,11 @@ const router = express.Router();
 async function requireAdmin(req, res, next) {
   try {
     const r = await pool.query('SELECT role FROM users WHERE id = $1', [req.userId]);
-    if (!r.rows[0] || r.rows[0].role !== 'admin') {
+    const role = r.rows[0] && r.rows[0].role;
+    if (role !== 'admin' && role !== 'owner') {
       return res.status(403).json({ error: 'საჭიროა ადმინისტრატორის უფლებები' });
     }
+    req.userRole = role;
     next();
   } catch (err) {
     res.status(500).json({ error: 'სერვერის შეცდომა' });
@@ -203,6 +205,50 @@ router.get('/users', async (req, res) => {
   }
 });
 
+// Смена роли пользователя
+router.patch('/users/:id/role', async (req, res) => {
+  const targetId = Number(req.params.id);
+  const role = req.body.role;
+
+  if (!['student', 'instructor', 'admin'].includes(role)) {
+    return res.status(400).json({ error: 'როლი არასწორია' });
+  }
+
+  if (targetId === req.userId) {
+    return res.status(400).json({ error: 'საკუთარი როლის შეცვლა შეუძლებელია' });
+  }
+
+  try {
+    const target = await pool.query('SELECT id, role FROM users WHERE id = $1', [targetId]);
+    if (target.rows.length === 0) return res.status(404).json({ error: 'მომხმარებელი ვერ მოიძებნა' });
+
+    // Владелец — единственная роль, которую нельзя ни снять, ни выдать:
+    // он назначается один раз, при создании сайта
+    if (target.rows[0].role === 'owner') {
+      return res.status(409).json({ error: 'მფლობელის როლის შეცვლა შეუძლებელია' });
+    }
+
+    // Назначать и снимать администраторов может только владелец
+    if ((role === 'admin' || target.rows[0].role === 'admin') && req.userRole !== 'owner') {
+      return res.status(403).json({ error: 'ადმინისტრატორის დანიშვნა მხოლოდ მფლობელს შეუძლია' });
+    }
+
+    const r = await pool.query('UPDATE users SET role = $1, updated_at = now() WHERE id = $2 RETURNING id, name, role', [
+      role,
+      targetId,
+    ]);
+    res.json(r.rows[0]);
+  } catch (err) {
+    console.error('Ошибка смены роли:', err);
+    res.status(500).json({ error: 'სერვერის შეცდომა' });
+  }
+});
+
+// Кто я — чтобы фронт знал, показывать ли управление ролями
+router.get('/me', async (req, res) => {
+  res.json({ role: req.userRole, isOwner: req.userRole === 'owner' });
+});
+
 // Что исчезнет вместе с пользователем
 router.get('/users/:id/deletion-preview', async (req, res) => {
   try {
@@ -224,8 +270,12 @@ router.delete('/users/:id', async (req, res) => {
     const target = await pool.query('SELECT id, role FROM users WHERE id = $1', [targetId]);
     if (target.rows.length === 0) return res.status(404).json({ error: 'მომხმარებელი ვერ მოიძებნა' });
 
-    if (target.rows[0].role === 'admin') {
-      return res.status(409).json({ error: 'ადმინისტრატორის წაშლა შეუძლებელია — ჯერ შეუცვალე როლი' });
+    if (target.rows[0].role === 'owner') {
+      return res.status(409).json({ error: 'საიტის მფლობელის წაშლა შეუძლებელია' });
+    }
+    // Админа может удалить только владелец
+    if (target.rows[0].role === 'admin' && req.userRole !== 'owner') {
+      return res.status(409).json({ error: 'ადმინისტრატორის წაშლა მხოლოდ მფლობელს შეუძლია' });
     }
 
     const result = await deleteAccount(targetId);

@@ -13,7 +13,8 @@ function categoryIconUrl(icon) {
     return '../assets/' + icon;
 }
 const STATUS_LABELS = { draft: 'მონახაზი', published: 'გამოქვეყნებული', blocked: 'დაბლოკილი' };
-const ROLE_LABELS = { student: 'სტუდენტი', instructor: 'ლექტორი', admin: 'ადმინი' };
+const ROLE_LABELS = { student: 'სტუდენტი', instructor: 'ლექტორი', admin: 'ადმინი', owner: 'მფლობელი' };
+let isOwner = false;
 
 // ==========================================================
 // Обзор
@@ -265,9 +266,16 @@ async function renderUsers() {
     main.innerHTML = '<h1 class="editor-h1">მომხმარებლები</h1><p class="editor-loading">იტვირთება...</p>';
 
     try {
+        try {
+            const me = await EdunityAPI.adminMe();
+            isOwner = !!me.isOwner;
+        } catch (e) {
+            isOwner = false;
+        }
         const users = await EdunityAPI.adminUsers();
         main.innerHTML = `
             <h1 class="editor-h1">მომხმარებლები</h1>
+            <p class="editor-sub">${isOwner ? 'როგორც მფლობელი, შეგიძლია ადმინისტრატორების დანიშვნაც.' : 'ადმინისტრატორის დანიშვნა მხოლოდ საიტის მფლობელს შეუძლია.'}</p>
             <div class="admin-table">
                 ${users
                     .map(
@@ -277,14 +285,39 @@ async function renderUsers() {
                             <span class="admin-row-title">${esc(u.name)}</span>
                             <span class="admin-row-meta">${esc(u.email)} · ${ROLE_LABELS[u.role] || esc(u.role)} · ${u.coursesCount} კურსი</span>
                         </div>
-                        ${u.role === 'admin' ? '' : `<div class="admin-row-actions">
-                            <button class="tool-btn danger" data-deluser="${u.id}" data-name="${esc(u.name)}">წაშლა</button>
-                        </div>`}
+                        ${
+                            u.role === 'owner'
+                                ? '<span class="owner-badge">საიტის მფლობელი</span>'
+                                : `<div class="admin-row-actions">
+                                    <select class="role-select" data-roleuser="${u.id}">
+                                        ${['student', 'instructor', 'admin']
+                                            .map((r) => {
+                                                const blocked = r === 'admin' && !isOwner;
+                                                return `<option value="${r}" ${u.role === r ? 'selected' : ''} ${blocked ? 'disabled' : ''}>${ROLE_LABELS[r]}</option>`;
+                                            })
+                                            .join('')}
+                                    </select>
+                                    <button class="tool-btn danger" data-deluser="${u.id}" data-name="${esc(u.name)}">წაშლა</button>
+                                   </div>`
+                        }
                     </div>`
                     )
                     .join('')}
             </div>
         `;
+        main.querySelectorAll('[data-roleuser]').forEach((sel) => {
+            sel.addEventListener('change', async () => {
+                const id = Number(sel.dataset.roleuser);
+                try {
+                    await EdunityAPI.adminSetRole(id, sel.value);
+                    EdunityUI.toast('როლი შეიცვალა', 'success');
+                } catch (err) {
+                    EdunityUI.toast(err.message);
+                    renderUsers();
+                }
+            });
+        });
+
         main.querySelectorAll('[data-deluser]').forEach((btn) => {
             btn.addEventListener('click', async () => {
                 const id = Number(btn.dataset.deluser);
@@ -470,7 +503,7 @@ async function init() {
     }
     try {
         const me = await EdunityAPI.me();
-        if (me.role !== 'admin') {
+        if (me.role !== 'admin' && me.role !== 'owner') {
             main.innerHTML = '<p class="editor-empty">ეს გვერდი ხელმისაწვდომია მხოლოდ ადმინისტრატორისთვის</p>';
             return;
         }

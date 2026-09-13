@@ -161,10 +161,17 @@ router.delete('/me', requireAuth, async (req, res) => {
     const ok = await bcrypt.compare(password, r.rows[0].password_hash);
     if (!ok) return res.status(401).json({ error: 'პაროლი არასწორია' });
 
+    // Владелец сайта не может удалить свой аккаунт вообще
+    if (r.rows[0].role === 'owner') {
+      return res.status(409).json({
+        error: 'საიტის მფლობელის ანგარიშის წაშლა შეუძლებელია',
+      });
+    }
+
     // Последний администратор не должен удалять себя — иначе
     // сайтом станет некому управлять
     if (r.rows[0].role === 'admin') {
-      const admins = await pool.query("SELECT COUNT(*) AS n FROM users WHERE role = 'admin'");
+      const admins = await pool.query("SELECT COUNT(*) AS n FROM users WHERE role IN ('admin', 'owner')");
       if (Number(admins.rows[0].n) <= 1) {
         return res.status(409).json({
           error: 'შენ ერთადერთი ადმინისტრატორი ხარ — ჯერ დანიშნე სხვა',

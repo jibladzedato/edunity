@@ -11,11 +11,28 @@ const SMTP_HOST = process.env.SMTP_HOST;
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const FROM = process.env.MAIL_FROM || 'EDUNITY <no-reply@edunity.ge>';
 
-// Разбираем "EDUNITY <mail@example.com>" на имя и адрес
+// Разбираем значение MAIL_FROM на имя и адрес.
+//
+// Правильный формат — "EDUNITY <mail@example.com>". Но скобки легко забыть,
+// а API Brevo тогда отвечает "valid sender email required". Поэтому адрес
+// вытаскиваем в любом случае: и из скобок, и из строки вида "EDUNITY mail@x.com".
 function parseFrom(value) {
-  const m = String(value).match(/^\s*(.*?)\s*<([^>]+)>\s*$/);
-  if (m) return { name: m[1] || 'EDUNITY', email: m[2] };
-  return { name: 'EDUNITY', email: String(value).trim() };
+  const raw = String(value || '').trim();
+
+  const withBrackets = raw.match(/^\s*(.*?)\s*<([^>]+)>\s*$/);
+  if (withBrackets) {
+    return { name: withBrackets[1] || 'EDUNITY', email: withBrackets[2].trim() };
+  }
+
+  // скобок нет — ищем то, что похоже на адрес
+  const found = raw.match(/[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+/);
+  if (found) {
+    const email = found[0];
+    const name = raw.replace(email, '').replace(/[<>]/g, '').trim();
+    return { name: name || 'EDUNITY', email };
+  }
+
+  return { name: 'EDUNITY', email: raw };
 }
 
 // Отправка через HTTP API Brevo.

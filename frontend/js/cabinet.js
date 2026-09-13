@@ -258,6 +258,9 @@ function renderSettings() {
                 <button class="editor-save-btn" id="save-password">პაროლის შეცვლა</button>
             </div>
 
+            <h2 class="editor-h2">ფაილების ადგილი</h2>
+            <div id="storage-usage" class="storage-usage"><p class="editor-loading">იტვირთება...</p></div>
+
             <h2 class="editor-h2" style="color:#b5391c">ანგარიშის წაშლა</h2>
             <div class="danger-zone">
                 <p>წაიშლება სამუდამოდ: შენი პროფილი, კურსები, კომენტარები, შეფასებები, პროგრესი,
@@ -293,6 +296,18 @@ function renderSettings() {
             e.target.disabled = false;
         }
     });
+
+    // Сколько места занято загруженными файлами
+    EdunityAPI.storageUsage()
+        .then((u) => {
+            const box = document.getElementById('storage-usage');
+            if (!box) return;
+            const mb = (b) => (b / 1024 / 1024).toFixed(1);
+            box.innerHTML = `
+                <div class="cab-progress-bar"><span style="width:${Math.min(100, u.percentUsed)}%"></span></div>
+                <span class="cab-progress-text">${mb(u.bytes)} MB / ${mb(u.quotaBytes)} MB · ${u.files} ფაილი</span>`;
+        })
+        .catch(() => {});
 
     // Показываем, что именно исчезнет
     EdunityAPI.deletionPreview()

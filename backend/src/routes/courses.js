@@ -90,6 +90,18 @@ router.get('/', async (req, res) => {
     if (req.query.free === '1') conditions.push('c.price = 0');
     if (req.query.cert === '1') conditions.push('c.has_certificate = true');
 
+    // Постраничная выдача: раньше отдавались все курсы разом и фильтровались
+    // в браузере — на нескольких сотнях курсов страница вставала.
+    const limit = Math.min(Math.max(Number(req.query.limit) || 12, 1), 48);
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const offset = (page - 1) * limit;
+
+    const totalRes = await pool.query(
+      `SELECT COUNT(*) AS n FROM courses c WHERE ${conditions.join(' AND ')}`,
+      params
+    );
+    const total = Number(totalRes.rows[0].n);
+
     const result = await pool.query(
       `SELECT c.*, u.name AS author_name,
               COALESCE(ROUND(AVG(r.rating)::numeric, 1), 0) AS rating,
@@ -102,11 +114,18 @@ router.get('/', async (req, res) => {
          LEFT JOIN reviews r ON r.course_id = c.id
         WHERE ${conditions.join(' AND ')}
         GROUP BY c.id, u.name
-        ORDER BY c.created_at DESC`,
+        ORDER BY c.created_at DESC
+        LIMIT ${limit} OFFSET ${offset}`,
       params
     );
 
-    res.json(result.rows.map(publicCourse));
+    res.json({
+      courses: result.rows.map(publicCourse),
+      total,
+      page,
+      limit,
+      pages: Math.max(1, Math.ceil(total / limit)),
+    });
   } catch (err) {
     console.error('Ошибка получения каталога:', err);
     fail(res, 500, 'სერვერის შეცდომა');
