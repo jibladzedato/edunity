@@ -153,10 +153,8 @@ const searchInput = document.getElementById('search-input');
 const filterFree = document.getElementById('filter-free');
 const filterCert = document.getElementById('filter-cert');
 const searchButton = document.getElementById('search-button');
-const filterToggle = document.getElementById('filter-toggle');
 
 searchButton.addEventListener('click', goToCatalogWithSearch);
-filterToggle.addEventListener('click', goToCatalogWithSearch);
 searchInput.addEventListener('keyup', (e) => {
     if (e.key === 'Enter') goToCatalogWithSearch();
 });

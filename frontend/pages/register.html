@@ -6,6 +6,7 @@
     <title>რეგისტრაცია | EDUNITY</title>
 
     <link rel="stylesheet" href="../css/syle.css">
+    <link rel="stylesheet" href="../css/editor.css">
     <link rel="stylesheet" href="../css/autorizacia.css">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -131,10 +132,7 @@
                         <span class="an-xazi"></span>
                     </div>
 
-                    <button type="button" class="avtorizacia-google">
-                        <img src="../assets/google.svg">
-                        გაგრძელება Google-ით
-                    </button>
+                    <div id="google-signin" class="google-signin"></div>
 
                 </form>
 
@@ -156,7 +154,11 @@
 
     <script src="../js/config.js"></script>
     <script src="../js/api.js"></script>
+    <script src="../js/google-auth.js"></script>
     <script src="../js/common.js"></script>
     <script src="../js/register.js"></script>
+    <script>
+        EdunityGoogle.render(document.getElementById('google-signin'));
+    </script>
 </body>
 </html>

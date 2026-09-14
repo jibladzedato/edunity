@@ -16,7 +16,6 @@ const searchInput = document.getElementById('search-input');
 const filterFree = document.getElementById('filter-free');
 const filterCert = document.getElementById('filter-cert');
 const searchButton = document.getElementById('search-button');
-const filterToggle = document.getElementById('filter-toggle');
 const categoryFiltersEl = document.getElementById('category-filters');
 const catalogGrid = document.getElementById('catalog-grid');
 
@@ -161,7 +160,6 @@ function renderPagination(total) {
 }
 
 searchButton.addEventListener('click', () => applyFilters(1));
-filterToggle.addEventListener('click', () => applyFilters(1));
 filterFree.addEventListener('change', () => applyFilters(1));
 filterCert.addEventListener('change', () => applyFilters(1));
 searchInput.addEventListener('keyup', (e) => {

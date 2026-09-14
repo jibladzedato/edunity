@@ -77,6 +77,12 @@ const EdunityAPI = {
   login(email, password) {
     return apiRequest("/auth/login", { method: "POST", body: { email, password } });
   },
+  authProviders() {
+    return apiRequest("/auth/providers");
+  },
+  googleLogin(credential) {
+    return apiRequest("/auth/google", { method: "POST", body: { credential } });
+  },
   verifyEmail(token) {
     return apiRequest("/auth/verify/" + encodeURIComponent(token), { method: "POST" });
   },

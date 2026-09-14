@@ -2915,3 +2915,13 @@ body {
     border-radius: 20px;
     white-space: nowrap;
 }
+
+/* ==== Кнопка входа через Google ==== */
+.google-signin {
+    display: flex;
+    justify-content: center;
+    min-height: 44px;
+}
+.google-signin iframe {
+    margin: 0 auto !important;
+}

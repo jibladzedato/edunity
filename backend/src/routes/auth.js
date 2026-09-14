@@ -6,6 +6,16 @@ const crypto = require('crypto');
 const pool = require('../db/pool');
 const mail = require('../mail');
 const { loginLimiter, registerLimiter, mailLimiter } = require('../middleware/rate-limit');
+const { OAuth2Client } = require('google-auth-library');
+
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const googleClient = GOOGLE_CLIENT_ID ? new OAuth2Client() : null;
+
+if (GOOGLE_CLIENT_ID) {
+  console.log('[auth] вход через Google включён');
+} else {
+  console.log('[auth] вход через Google выключен (нет GOOGLE_CLIENT_ID)');
+}
 
 const router = express.Router();
 const SALT_ROUNDS = 12;
@@ -150,6 +160,15 @@ router.post(
         return res.status(401).json({ error: 'მეილი ვერ მოიძებნა' });
       }
 
+      // У аккаунтов, созданных через Google, пароля нет —
+      // подсказываем, каким способом входить
+      if (!user.password_hash) {
+        return res.status(401).json({
+          error: 'ეს ანგარიში Google-ით შეიქმნა — შედი Google-ის ღილაკით',
+          useGoogle: true,
+        });
+      }
+
       const ok = await bcrypt.compare(password, user.password_hash);
       if (!ok) {
         return res.status(401).json({ error: 'პაროლი არასწორია' });
@@ -163,6 +182,77 @@ router.post(
     }
   }
 );
+
+// ==========================================================
+// Вход через Google
+// ==========================================================
+
+// Фронт спрашивает, какие способы входа доступны
+router.get('/providers', (req, res) => {
+  res.json({ google: !!GOOGLE_CLIENT_ID, googleClientId: GOOGLE_CLIENT_ID || null });
+});
+
+router.post('/google', loginLimiter, async (req, res) => {
+  if (!googleClient) return res.status(400).json({ error: 'Google-ით შესვლა გამორთულია' });
+
+  const credential = req.body.credential;
+  if (!credential) return res.status(400).json({ error: 'ტოკენი არ არის გადმოცემული' });
+
+  try {
+    // Проверяем подпись Google. Доверять данным из браузера нельзя —
+    // их легко подделать, поэтому токен всегда проверяется на сервере.
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const googleId = payload.sub;
+    const email = (payload.email || '').toLowerCase();
+    const name = payload.name || email.split('@')[0];
+    const picture = payload.picture || null;
+
+    if (!email || !payload.email_verified) {
+      return res.status(400).json({ error: 'Google-ის ანგარიშის ფოსტა არ არის დადასტურებული' });
+    }
+
+    // 1. Уже входил через Google
+    let user = (await pool.query('SELECT * FROM users WHERE google_id = $1', [googleId])).rows[0];
+
+    // 2. Регистрировался обычным способом на ту же почту — связываем аккаунты,
+    //    чтобы не появился второй профиль на того же человека
+    if (!user) {
+      const byEmail = (await pool.query('SELECT * FROM users WHERE LOWER(email) = $1', [email])).rows[0];
+      if (byEmail) {
+        user = (
+          await pool.query(
+            `UPDATE users SET google_id = $1, email_verified = true,
+                    avatar_url = COALESCE(avatar_url, $2), updated_at = now()
+              WHERE id = $3 RETURNING *`,
+            [googleId, picture, byEmail.id]
+          )
+        ).rows[0];
+      }
+    }
+
+    // 3. Новый пользователь. Почта уже подтверждена самим Google,
+    //    поэтому письмо с подтверждением не отправляем.
+    if (!user) {
+      user = (
+        await pool.query(
+          `INSERT INTO users (name, email, google_id, avatar_url, email_verified, password_hash)
+           VALUES ($1, $2, $3, $4, true, NULL) RETURNING *`,
+          [name, email, googleId, picture]
+        )
+      ).rows[0];
+    }
+
+    res.json({ token: signToken(user), user: toPublicUser(user) });
+  } catch (err) {
+    console.error('[auth] ошибка входа через Google:', err.message);
+    res.status(401).json({ error: 'Google-ით შესვლა ვერ მოხერხდა' });
+  }
+});
 
 // ==========================================================
 // Подтверждение почты
