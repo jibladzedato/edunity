@@ -2944,7 +2944,7 @@ body {
    ограничено и отцентровано — как в макете. */
 .teach-hero {
     background: #eef1ec;
-    padding: 50px 20px 0;
+    padding: 50px 20px;
     /* выходим за пределы контейнера .rest на всю ширину окна */
     width: 100vw;
     position: relative;
@@ -2952,8 +2952,6 @@ body {
     right: 50%;
     margin-left: -50vw;
     margin-right: -50vw;
-    /* нижний край серой полосы обрезает фигуру человека, как в макете */
-    overflow: hidden;
 }
 .teach-hero-inner {
     max-width: 1100px;
@@ -2980,19 +2978,21 @@ body {
     margin-bottom: 24px;
 }
 /* Фотография без фона и рамки: у PNG прозрачный фон,
-   человек просто стоит на серой полосе. */
+   человек просто стоит на серой полосе и ничем не обрезается. */
 .teach-hero-photo {
     flex-shrink: 0;
     align-self: flex-end;
     line-height: 0;
+    background: none;
+    border-radius: 0;
+    overflow: visible;
 }
 .teach-hero-photo img {
     display: block;
-    max-width: 260px;
+    max-width: 400px;
     width: 100%;
     height: auto;
-    /* уводим низ картинки за край блока — overflow его срезает */
-    margin-bottom: -30px;
+    margin-bottom: 0;
 }
 
 /* Крупная кнопка, как в макете */
@@ -3045,7 +3045,7 @@ body {
 
 @media (min-width: 768px) {
     .teach-hero {
-        padding: 60px 40px 0;
+        padding: 60px 40px;
     }
     .teach-hero-inner {
         flex-direction: row;
@@ -3054,12 +3054,9 @@ body {
         text-align: left;
         gap: 40px;
     }
-    .teach-hero-content {
-        padding-bottom: 60px;
-    }
     .teach-hero-photo img {
-        max-width: 375px;
-        margin-bottom: -50px;
+        max-width: 400px;
+        margin-bottom: 0;
     }
     .teach-features {
         flex-direction: row;
@@ -3069,4 +3066,3 @@ body {
         flex: 1;
     }
 }
-
