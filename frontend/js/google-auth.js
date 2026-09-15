@@ -52,12 +52,17 @@ const EdunityGoogle = (function () {
       });
 
       container.innerHTML = '';
+      // Ширину берём от контейнера, чтобы кнопка была во всю форму.
+      // Google ограничивает её 400 пикселями — больше он не отрисует.
+      const width = Math.min(container.offsetWidth || 360, 400);
+
       google.accounts.id.renderButton(container, {
         theme: 'outline',
         size: 'large',
         text: 'continue_with',
-        shape: 'pill',
-        width: container.offsetWidth || 320,
+        shape: 'rectangular',
+        logo_alignment: 'center',
+        width,
         locale: 'ka',
       });
     } catch (err) {
