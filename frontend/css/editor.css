@@ -2944,7 +2944,7 @@ body {
    ограничено и отцентровано — как в макете. */
 .teach-hero {
     background: #eef1ec;
-    padding: 50px 20px;
+    padding: 0 20px;
     /* выходим за пределы контейнера .rest на всю ширину окна */
     width: 100vw;
     position: relative;
@@ -2964,6 +2964,9 @@ body {
 }
 .teach-hero-content {
     max-width: 460px;
+    /* выравниваем по центру серой полосы: фото прижато к низу,
+       и без этого текст уезжал вниз вместе с ним */
+    align-self: center;
 }
 .teach-hero h1 {
     font-size: 30px;
@@ -3045,7 +3048,7 @@ body {
 
 @media (min-width: 768px) {
     .teach-hero {
-        padding: 60px 40px;
+        padding: 0 40px;
     }
     .teach-hero-inner {
         flex-direction: row;
