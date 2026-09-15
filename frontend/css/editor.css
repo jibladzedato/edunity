@@ -2936,13 +2936,15 @@ body {
 /* ==== Страница "სწავლება" ==== */
 .teach-page {
     font-family: "FiraGO";
+    /* серая полоса начинается сразу под шапкой, без белого зазора */
+    padding-top: 0;
 }
 
 /* Серый блок тянется во всю ширину экрана, а содержимое внутри
    ограничено и отцентровано — как в макете. */
 .teach-hero {
     background: #eef1ec;
-    padding: 50px 20px;
+    padding: 50px 20px 0;
     /* выходим за пределы контейнера .rest на всю ширину окна */
     width: 100vw;
     position: relative;
@@ -2950,6 +2952,8 @@ body {
     right: 50%;
     margin-left: -50vw;
     margin-right: -50vw;
+    /* нижний край серой полосы обрезает фигуру человека, как в макете */
+    overflow: hidden;
 }
 .teach-hero-inner {
     max-width: 1100px;
@@ -2975,14 +2979,20 @@ body {
     line-height: 1.6;
     margin-bottom: 24px;
 }
+/* Фотография без фона и рамки: у PNG прозрачный фон,
+   человек просто стоит на серой полосе. */
 .teach-hero-photo {
     flex-shrink: 0;
+    align-self: flex-end;
+    line-height: 0;
 }
 .teach-hero-photo img {
     display: block;
-    max-width: 320px;
+    max-width: 260px;
     width: 100%;
     height: auto;
+    /* уводим низ картинки за край блока — overflow его срезает */
+    margin-bottom: -30px;
 }
 
 /* Крупная кнопка, как в макете */
@@ -3035,16 +3045,21 @@ body {
 
 @media (min-width: 768px) {
     .teach-hero {
-        padding: 60px 40px;
+        padding: 60px 40px 0;
     }
     .teach-hero-inner {
         flex-direction: row;
         justify-content: space-between;
+        align-items: flex-end;
         text-align: left;
         gap: 40px;
     }
+    .teach-hero-content {
+        padding-bottom: 60px;
+    }
     .teach-hero-photo img {
         max-width: 375px;
+        margin-bottom: -50px;
     }
     .teach-features {
         flex-direction: row;
