@@ -2919,16 +2919,22 @@ body {
 /* ==== Кнопка входа через Google ==== */
 .google-signin {
     width: 100%;
+    position: relative;
 }
-/* Настоящая кнопка Google: нужна для работы, но не показывается —
-   вместо неё видна своя, одного размера с кнопкой входа. */
+/* Настоящая кнопка Google лежит прозрачной поверх своей.
+   Клик по iframe Google нельзя вызвать из JS — пользователь должен
+   нажать его сам, поэтому он растягивается на размер видимой кнопки. */
 .google-hidden {
     position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    opacity: 0;
-    pointer-events: none;
+    top: 0;
+    left: 0;
+    transform-origin: 0 0;
+    opacity: 0.01;
+    z-index: 2;
+}
+/* мышь теперь над iframe, поэтому hover вешаем на контейнер */
+.google-signin:hover .avtorizacia-google {
+    background: #f7f7f7;
 }
 
 /* ==== Страница "სწავლება" ==== */

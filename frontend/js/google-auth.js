@@ -34,10 +34,10 @@ const EdunityGoogle = (function () {
 
   // container — элемент, вместо которого появится кнопка Google.
   //
-  // Google рисует свою кнопку внутри iframe и не даёт сделать её шире 400px,
-  // поэтому она выбивалась из формы. Решение: настоящая кнопка прячется,
-  // а сверху показывается своя — с размерами как у кнопки входа.
-  // Клик по ней программно нажимает настоящую.
+  // Google рисует кнопку внутри iframe и не даёт сделать её шире 400px.
+  // Нажать iframe программно нельзя (real.click() ничего не делает),
+  // поэтому настоящая кнопка лежит прозрачной ПОВЕРХ своей и растягивается
+  // на её размер. Пользователь видит свою кнопку, а кликает по Google.
   async function render(container) {
     if (!container) return;
 
@@ -58,7 +58,7 @@ const EdunityGoogle = (function () {
 
       container.innerHTML =
         '<div class="google-hidden" aria-hidden="true"></div>' +
-        '<button type="button" class="avtorizacia-google">' +
+        '<button type="button" class="avtorizacia-google" tabindex="-1">' +
         '<img src="../assets/google.svg" alt="">' +
         'გაგრძელება Google-ით' +
         '</button>';
@@ -70,25 +70,24 @@ const EdunityGoogle = (function () {
         theme: 'outline',
         size: 'large',
         text: 'continue_with',
-        width: 300,
+        width: 400,
       });
 
-      visible.addEventListener('click', () => {
-        // ищем настоящую кнопку внутри контейнера Google и нажимаем её
-        const real =
-          hidden.querySelector('div[role="button"]') ||
-          hidden.querySelector('button') ||
-          hidden.querySelector('iframe');
+      // растягиваем прозрачную кнопку Google на размер своей
+      function fit() {
+        hidden.style.transform = 'none';
+        const w = hidden.offsetWidth;
+        const h = hidden.offsetHeight;
+        if (!w || !h) return;
+        hidden.style.transform =
+          'scale(' + visible.offsetWidth / w + ',' + visible.offsetHeight / h + ')';
+      }
 
-        if (real && typeof real.click === 'function') {
-          real.click();
-        } else {
-          // если структура Google изменилась — показываем их кнопку как есть,
-          // чтобы вход всё равно остался рабочим
-          hidden.classList.remove('google-hidden');
-          visible.remove();
-        }
-      });
+      // iframe Google появляется с задержкой — ждём его размеры
+      if (window.ResizeObserver) new ResizeObserver(fit).observe(visible);
+      setTimeout(fit, 300);
+      setTimeout(fit, 1200);
+      window.addEventListener('resize', fit);
     } catch (err) {
       console.error('[google-auth]', err.message);
       container.remove();
