@@ -177,7 +177,7 @@ function renderDescription() {
     // тянешь фото в любом окне — сдвигается во всех.
     const coverFormats = [
         { cls: 'home', label: 'მთავარი გვერდი' },
-        { cls: 'catalog', label: 'კურსების სია' },
+        { cls: 'catalog', label: 'კურსების სია (კომპიუტერი)' },
         { cls: 'hero', label: 'კურსის გვერდი' },
         { cls: 'thumb', label: 'სწავლება' },
     ];

@@ -3114,7 +3114,7 @@ body {
     pointer-events: none;
 }
 /* размеры как на сайте */
-.cover-pos-frame.home { width: 240px; height: 140px; border-radius: 16px 16px 0 0; }
+.cover-pos-frame.home { width: 320px; height: 180px; border-radius: 16px 16px 0 0; }
 .cover-pos-frame.catalog { width: 240px; height: 180px; border-radius: 16px 0 0 16px; }
 .cover-pos-frame.hero { width: 280px; height: 175px; border-radius: 12px; }
 .cover-pos-frame.thumb { width: 58px; height: 58px; border-radius: 10px; }

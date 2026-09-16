@@ -336,6 +336,7 @@ nav li a.active,
     .catalog-grid .kursi-picture {
         width: 240px;
         height: auto;
+        aspect-ratio: auto;
         align-self: stretch;
         contain: size;
         flex-shrink: 0;
@@ -830,7 +831,10 @@ nav li a.active,
 
 .kursi-picture {
     width: 100%;
-    height: 140px;
+    /* один формат для вертикальных карточек:
+       главная (ПК и телефон) и список курсов на телефоне */
+    height: auto;
+    aspect-ratio: 16 / 9;
     object-fit: cover;
 }
 
