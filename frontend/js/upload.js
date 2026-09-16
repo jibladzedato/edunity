@@ -189,5 +189,11 @@ const EdunityUpload = (function () {
     };
   }
 
-  return { attach, send, fileUrl };
+  // style="object-position:..." для обложки курса
+  function posStyle(pos) {
+    const ok = typeof pos === 'string' && /^[\d.]+% [\d.]+%$/.test(pos);
+    return `style="object-position:${ok ? pos : '50% 50%'}"`;
+  }
+
+  return { attach, send, fileUrl, posStyle };
 })();

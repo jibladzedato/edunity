@@ -54,7 +54,7 @@ function renderkursebi(courses) {
 
         card.innerHTML = `
             ${course.coverUrl
-                ? `<img class="kursi-picture" src="${EdunityUpload.fileUrl(course.coverUrl)}" alt="">`
+                ? `<img class="kursi-picture" src="${EdunityUpload.fileUrl(course.coverUrl)}" ${EdunityUpload.posStyle(course.coverPos)} alt="">`
                 : `<div class="kursi-picture kursi-noimg">${initial}</div>`}
             <div class="kursi-body">
                 <div class="reitingi">

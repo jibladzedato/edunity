@@ -92,7 +92,7 @@ async function renderLearning() {
                         (c) => `
                     <article class="cab-course">
                         <div class="cab-course-cover">
-                            ${c.coverUrl ? `<img src="${EdunityUpload.fileUrl(c.coverUrl)}" alt="" onerror="this.remove()">` : ''}
+                            ${c.coverUrl ? `<img src="${EdunityUpload.fileUrl(c.coverUrl)}" ${EdunityUpload.posStyle(c.coverPos)} alt="" onerror="this.remove()">` : ''}
                         </div>
                         <div class="cab-course-body">
                             <h3 class="cab-course-title">${esc(c.title)}</h3>
@@ -195,7 +195,7 @@ async function renderTeaching() {
                         (c) => `
                     <article class="cab-course">
                         <div class="cab-course-cover">
-                            ${c.coverUrl ? `<img src="${EdunityUpload.fileUrl(c.coverUrl)}" alt="" onerror="this.remove()">` : ''}
+                            ${c.coverUrl ? `<img src="${EdunityUpload.fileUrl(c.coverUrl)}" ${EdunityUpload.posStyle(c.coverPos)} alt="" onerror="this.remove()">` : ''}
                         </div>
                         <div class="cab-course-body">
                             <h3 class="cab-course-title">${esc(c.title)}</h3>

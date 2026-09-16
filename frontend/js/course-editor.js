@@ -103,6 +103,7 @@ function renderDescription() {
         <div class="editor-field">
             <label for="cover-upload">ყდის სურათი</label>
             <div id="cover-upload"></div>
+            <div class="cover-pos" id="cover-pos"></div>
         </div>
 
         <div class="editor-field">
@@ -154,6 +155,7 @@ function renderDescription() {
     });
 
     let coverUrl = course.coverUrl || '';
+    let coverPos = course.coverPos || '50% 50%';
     EdunityUpload.attach(document.getElementById('cover-upload'), {
         kind: 'image',
         value: coverUrl,
@@ -161,6 +163,7 @@ function renderDescription() {
         // если страница перезагрузится до нажатия «შენახვა».
         onChange: async (url) => {
             coverUrl = url;
+            renderCoverPos();
             try {
                 course = await EdunityAPI.updateCourse(courseId, { coverUrl: url || null });
             } catch (err) {
@@ -169,6 +172,101 @@ function renderDescription() {
         },
     });
 
+    // ==== Предпросмотр обложки во всех форматах ====
+    // Одна точка фокуса (object-position) на все форматы:
+    // тянешь фото в любом окне — сдвигается во всех.
+    const coverFormats = [
+        { cls: 'home', label: 'მთავარი გვერდი' },
+        { cls: 'catalog', label: 'კურსების სია' },
+        { cls: 'hero', label: 'კურსის გვერდი' },
+        { cls: 'thumb', label: 'სწავლება' },
+    ];
+
+    function renderCoverPos() {
+        const box = document.getElementById('cover-pos');
+        if (!coverUrl) {
+            box.innerHTML = '';
+            return;
+        }
+        const src = EdunityUpload.fileUrl(coverUrl);
+        box.innerHTML = `
+            <div class="cover-pos-head">
+                <span class="editor-hint">გადაათრიე სურათი, რომ სწორად ჩანდეს</span>
+                <button type="button" class="tool-btn" id="cover-pos-reset">ცენტრში</button>
+            </div>
+            <div class="cover-pos-grid">
+                ${coverFormats.map((f) => `
+                    <div class="cover-pos-item">
+                        <div class="cover-pos-frame ${f.cls}">
+                            <img src="${esc(src)}" alt="" draggable="false" style="object-position:${coverPos}">
+                        </div>
+                        <span class="cover-pos-label">${f.label}</span>
+                    </div>`).join('')}
+            </div>
+        `;
+
+        const imgs = box.querySelectorAll('img');
+        let [px, py] = coverPos.split(' ').map(parseFloat);
+
+        function apply() {
+            coverPos = `${Math.round(px)}% ${Math.round(py)}%`;
+            imgs.forEach((im) => (im.style.objectPosition = coverPos));
+        }
+
+        async function save() {
+            try {
+                course = await EdunityAPI.updateCourse(courseId, { coverPos });
+            } catch (err) {
+                EdunityUI.toast(err.message);
+            }
+        }
+
+        box.querySelectorAll('.cover-pos-frame').forEach((frame) => {
+            const img = frame.querySelector('img');
+            let start = null;
+
+            frame.addEventListener('pointerdown', (e) => {
+                if (!img.naturalWidth) return;
+                const fw = frame.clientWidth;
+                const fh = frame.clientHeight;
+                const scale = Math.max(fw / img.naturalWidth, fh / img.naturalHeight);
+                start = {
+                    x: e.clientX, y: e.clientY, px, py,
+                    // сколько пикселей фото выходит за рамку
+                    ox: img.naturalWidth * scale - fw,
+                    oy: img.naturalHeight * scale - fh,
+                };
+                frame.setPointerCapture(e.pointerId);
+                frame.classList.add('dragging');
+            });
+
+            frame.addEventListener('pointermove', (e) => {
+                if (!start) return;
+                const clamp = (v) => Math.min(100, Math.max(0, v));
+                if (start.ox > 0) px = clamp(start.px - ((e.clientX - start.x) / start.ox) * 100);
+                if (start.oy > 0) py = clamp(start.py - ((e.clientY - start.y) / start.oy) * 100);
+                apply();
+            });
+
+            const end = () => {
+                if (!start) return;
+                start = null;
+                frame.classList.remove('dragging');
+                save();
+            };
+            frame.addEventListener('pointerup', end);
+            frame.addEventListener('pointercancel', end);
+        });
+
+        document.getElementById('cover-pos-reset').addEventListener('click', () => {
+            px = 50;
+            py = 50;
+            apply();
+            save();
+        });
+    }
+    renderCoverPos();
+
     document.getElementById('save-description').addEventListener('click', async (e) => {
         const btn = e.target;
         btn.disabled = true;
@@ -176,6 +274,7 @@ function renderDescription() {
             const updated = await EdunityAPI.updateCourse(courseId, {
                 title: document.getElementById('f-title').value.trim(),
                 coverUrl: coverUrl || null,
+                coverPos,
                 summary: document.getElementById('f-summary').value.trim() || null,
                 description: descriptionHtml || null,
                 category: document.getElementById('f-category').value || null,

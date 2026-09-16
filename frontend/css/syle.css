@@ -328,15 +328,20 @@ nav li a.active,
         align-items: stretch;
         width: 100%;
     }
+    .catalog-grid .kursi-card {
+        min-height: 180px;
+    }
+    /* фото на всю высоту карточки; contain: size — чтобы размер
+       картинки не растягивал карточку, закругление даёт overflow карточки */
     .catalog-grid .kursi-picture {
-        width: 200px;
-        height: 180px;
-        box-sizing: border-box;
-        align-self: center;
+        width: 240px;
+        height: auto;
+        align-self: stretch;
+        contain: size;
         flex-shrink: 0;
-        object-fit: contain;
+        object-fit: cover;
         background: #eef1ec;
-        padding: 14px;
+        padding: 0;
     }
     .catalog-grid .kursi-body {
         flex: 1;

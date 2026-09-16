@@ -56,6 +56,7 @@ function publicCourse(row) {
     summary: row.summary,
     description: row.description,
     coverUrl: row.cover_url,
+    coverPos: row.cover_pos || '50% 50%',
     category: row.category,
     price: row.price,
     hasCertificate: row.has_certificate,
@@ -329,6 +330,7 @@ router.patch('/:id', requireAuth, async (req, res) => {
     summary: 'summary',
     description: 'description',
     coverUrl: 'cover_url',
+    coverPos: 'cover_pos',
     category: 'category',
     price: 'price',
     hasCertificate: 'has_certificate',
@@ -357,6 +359,11 @@ router.patch('/:id', requireAuth, async (req, res) => {
         });
       }
     }
+  }
+
+  // положение обложки: "X% Y%", числа 0–100
+  if (req.body.coverPos !== undefined && !/^(100|\d{1,2})(\.\d{1,2})?% (100|\d{1,2})(\.\d{1,2})?%$/.test(req.body.coverPos)) {
+    return fail(res, 400, 'სურათის პოზიცია არასწორია');
   }
 
   // старая обложка нужна, чтобы удалить её после замены

@@ -96,7 +96,7 @@ router.post('/me/password', requireAuth, async (req, res) => {
 router.get('/me/enrollments', requireAuth, async (req, res) => {
   try {
     const r = await pool.query(
-      `SELECT c.id, c.title, c.cover_url, c.category, c.price, u.name AS author_name,
+      `SELECT c.id, c.title, c.cover_url, c.cover_pos, c.category, c.price, u.name AS author_name,
               e.enrolled_at,
               (SELECT COUNT(*) FROM steps s
                  JOIN lessons l ON l.id = s.lesson_id
@@ -123,6 +123,7 @@ router.get('/me/enrollments', requireAuth, async (req, res) => {
           id: x.id,
           title: x.title,
           coverUrl: x.cover_url,
+          coverPos: x.cover_pos,
           category: x.category,
           price: x.price,
           authorName: x.author_name,
@@ -197,7 +198,7 @@ router.get('/:id/profile', async (req, res) => {
     if (u.rows.length === 0) return res.status(404).json({ error: 'მომხმარებელი ვერ მოიძებნა' });
 
     const courses = await pool.query(
-      `SELECT c.id, c.title, c.summary, c.cover_url, c.category, c.price, c.has_certificate,
+      `SELECT c.id, c.title, c.summary, c.cover_url, c.cover_pos, c.category, c.price, c.has_certificate,
               COALESCE(ROUND(AVG(r.rating)::numeric, 1), 0) AS rating,
               (SELECT COUNT(*) FROM enrollments e WHERE e.course_id = c.id) AS students_count,
               (SELECT COUNT(*) FROM lessons l JOIN modules m ON m.id = l.module_id
@@ -225,6 +226,7 @@ router.get('/:id/profile', async (req, res) => {
         title: c.title,
         summary: c.summary,
         coverUrl: c.cover_url,
+        coverPos: c.cover_pos,
         category: c.category,
         price: c.price,
         hasCertificate: c.has_certificate,

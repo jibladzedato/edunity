@@ -29,7 +29,7 @@ function courseCard(c) {
         <article class="course-row" data-id="${c.id}">
             <a class="course-row-logo" href="course-editor.html?id=${c.id}">
                 ${c.coverUrl
-                    ? `<img src="${EdunityUpload.fileUrl(c.coverUrl)}" alt="" onerror="this.parentElement.textContent='${esc(initial)}'">`
+                    ? `<img src="${EdunityUpload.fileUrl(c.coverUrl)}" ${EdunityUpload.posStyle(c.coverPos)} alt="" onerror="this.parentElement.textContent='${esc(initial)}'">`
                     : esc(initial)}
                 ${published ? '' : '<span class="course-row-draft" title="მონახაზი"></span>'}
             </a>

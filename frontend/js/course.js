@@ -33,7 +33,7 @@ function render() {
             <div class="course-hero-cover">
                 ${
                     course.coverUrl
-                        ? `<img src="${EdunityUpload.fileUrl(course.coverUrl)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'course-hero-initial',textContent:'${esc(initial)}'}))">`
+                        ? `<img src="${EdunityUpload.fileUrl(course.coverUrl)}" ${EdunityUpload.posStyle(course.coverPos)} alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'course-hero-initial',textContent:'${esc(initial)}'}))">`
                         : `<div class="course-hero-initial">${esc(initial)}</div>`
                 }
             </div>

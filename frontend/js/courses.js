@@ -50,7 +50,7 @@ function renderCourseCard(course) {
     card.innerHTML = `
         ${
             course.coverUrl
-                ? `<img class="kursi-picture" src="${EdunityUpload.fileUrl(course.coverUrl)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'kursi-picture kursi-noimg',textContent:'${esc(initial)}'}))">`
+                ? `<img class="kursi-picture" src="${EdunityUpload.fileUrl(course.coverUrl)}" ${EdunityUpload.posStyle(course.coverPos)} alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'kursi-picture kursi-noimg',textContent:'${esc(initial)}'}))">`
                 : `<div class="kursi-picture kursi-noimg">${esc(initial)}</div>`
         }
         <div class="kursi-body">

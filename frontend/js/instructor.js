@@ -43,7 +43,7 @@ async function load() {
                         <a class="instructor-course" href="course.html?id=${c.id}">
                             <div class="instructor-course-cover">
                                 ${c.coverUrl
-                                    ? `<img src="${EdunityUpload.fileUrl(c.coverUrl)}" alt="" onerror="this.remove()">`
+                                    ? `<img src="${EdunityUpload.fileUrl(c.coverUrl)}" ${EdunityUpload.posStyle(c.coverPos)} alt="" onerror="this.remove()">`
                                     : `<span>${esc(ci)}</span>`}
                             </div>
                             <div class="instructor-course-body">
