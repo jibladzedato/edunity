@@ -330,7 +330,9 @@ nav li a.active,
     }
     .catalog-grid .kursi-picture {
         width: 200px;
-        height: auto;
+        height: 180px;
+        box-sizing: border-box;
+        align-self: center;
         flex-shrink: 0;
         object-fit: contain;
         background: #eef1ec;
