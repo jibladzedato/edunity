@@ -190,10 +190,20 @@ const EdunityUpload = (function () {
   }
 
   // style="object-position:..." для обложки курса
+  // Позиции по форматам: card | row | hero | thumb.
+  // Старое значение из одной пары применяется ко всем.
+  const POS_KEYS = ['card', 'row', 'hero', 'thumb'];
+  function parsePos(pos) {
+    const parts = String(pos || '').split('|').filter((p) => /^\d{1,3}% \d{1,3}%$/.test(p));
+    const first = parts[0] || '50% 50%';
+    const out = {};
+    POS_KEYS.forEach((k, i) => (out[k] = parts[i] || first));
+    return out;
+  }
   function posStyle(pos) {
-    const ok = typeof pos === 'string' && /^[\d.]+% [\d.]+%$/.test(pos);
-    return `style="object-position:${ok ? pos : '50% 50%'}"`;
+    const p = parsePos(pos);
+    return `style="${POS_KEYS.map((k) => `--pos-${k}:${p[k]}`).join(';')}"`;
   }
 
-  return { attach, send, fileUrl, posStyle };
+  return { attach, send, fileUrl, posStyle, parsePos, POS_KEYS };
 })();

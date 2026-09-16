@@ -361,8 +361,9 @@ router.patch('/:id', requireAuth, async (req, res) => {
     }
   }
 
-  // положение обложки: "X% Y%", числа 0–100
-  if (req.body.coverPos !== undefined && !/^(100|\d{1,2})(\.\d{1,2})?% (100|\d{1,2})(\.\d{1,2})?%$/.test(req.body.coverPos)) {
+  // положение обложки: до 4 пар "X% Y%" через "|" (card|row|hero|thumb)
+  const POS = '(100|\\d{1,2})% (100|\\d{1,2})%';
+  if (req.body.coverPos !== undefined && !new RegExp(`^${POS}(\\|${POS}){0,3}$`).test(req.body.coverPos)) {
     return fail(res, 400, 'სურათის პოზიცია არასწორია');
   }
 

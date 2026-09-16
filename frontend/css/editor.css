@@ -3122,3 +3122,23 @@ body {
     font-size: 12px;
     color: #4d5756;
 }
+
+/* ==== Позиция обложки по форматам (переменные ставит EdunityUpload.posStyle) ==== */
+.kursi-picture {
+    object-position: var(--pos-card, 50% 50%);
+}
+.course-hero-cover img {
+    object-position: var(--pos-hero, 50% 50%);
+}
+.course-row-logo img {
+    object-position: var(--pos-thumb, 50% 50%);
+}
+.cab-course-cover img,
+.instructor-course-cover img {
+    object-position: var(--pos-row, 50% 50%);
+}
+@media (min-width: 768px) {
+    .catalog-grid .kursi-picture {
+        object-position: var(--pos-row, 50% 50%);
+    }
+}

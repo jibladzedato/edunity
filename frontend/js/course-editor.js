@@ -173,13 +173,13 @@ function renderDescription() {
     });
 
     // ==== Предпросмотр обложки во всех форматах ====
-    // Одна точка фокуса (object-position) на все форматы:
-    // тянешь фото в любом окне — сдвигается во всех.
+    // У каждого формата своя позиция (object-position).
+    // На телефоне форматы те же, что и на компьютере.
     const coverFormats = [
-        { cls: 'home', label: 'მთავარი გვერდი' },
-        { cls: 'catalog', label: 'კურსების სია (კომპიუტერი)' },
-        { cls: 'hero', label: 'კურსის გვერდი' },
-        { cls: 'thumb', label: 'სწავლება' },
+        { key: 'card', cls: 'home', label: 'მთავარი გვერდი' },
+        { key: 'row', cls: 'catalog', label: 'კურსების სია' },
+        { key: 'hero', cls: 'hero', label: 'კურსის გვერდი' },
+        { key: 'thumb', cls: 'thumb', label: 'სწავლება' },
     ];
 
     function renderCoverPos() {
@@ -189,28 +189,25 @@ function renderDescription() {
             return;
         }
         const src = EdunityUpload.fileUrl(coverUrl);
+        const pos = EdunityUpload.parsePos(coverPos);
         box.innerHTML = `
             <div class="cover-pos-head">
                 <span class="editor-hint">გადაათრიე სურათი, რომ სწორად ჩანდეს</span>
-                <button type="button" class="tool-btn" id="cover-pos-reset">ცენტრში</button>
+                <button type="button" class="tool-btn" id="cover-pos-reset">ყველა ცენტრში</button>
             </div>
             <div class="cover-pos-grid">
                 ${coverFormats.map((f) => `
                     <div class="cover-pos-item">
-                        <div class="cover-pos-frame ${f.cls}">
-                            <img src="${esc(src)}" alt="" draggable="false" style="object-position:${coverPos}">
+                        <div class="cover-pos-frame ${f.cls}" data-key="${f.key}">
+                            <img src="${esc(src)}" alt="" draggable="false" style="object-position:${pos[f.key]}">
                         </div>
                         <span class="cover-pos-label">${f.label}</span>
                     </div>`).join('')}
             </div>
         `;
 
-        const imgs = box.querySelectorAll('img');
-        let [px, py] = coverPos.split(' ').map(parseFloat);
-
-        function apply() {
-            coverPos = `${Math.round(px)}% ${Math.round(py)}%`;
-            imgs.forEach((im) => (im.style.objectPosition = coverPos));
+        function sync() {
+            coverPos = EdunityUpload.POS_KEYS.map((k) => pos[k]).join('|');
         }
 
         async function save() {
@@ -223,6 +220,7 @@ function renderDescription() {
 
         box.querySelectorAll('.cover-pos-frame').forEach((frame) => {
             const img = frame.querySelector('img');
+            const key = frame.dataset.key;
             let start = null;
 
             frame.addEventListener('pointerdown', (e) => {
@@ -230,6 +228,7 @@ function renderDescription() {
                 const fw = frame.clientWidth;
                 const fh = frame.clientHeight;
                 const scale = Math.max(fw / img.naturalWidth, fh / img.naturalHeight);
+                const [px, py] = pos[key].split(' ').map(parseFloat);
                 start = {
                     x: e.clientX, y: e.clientY, px, py,
                     // сколько пикселей фото выходит за рамку
@@ -243,9 +242,11 @@ function renderDescription() {
             frame.addEventListener('pointermove', (e) => {
                 if (!start) return;
                 const clamp = (v) => Math.min(100, Math.max(0, v));
-                if (start.ox > 0) px = clamp(start.px - ((e.clientX - start.x) / start.ox) * 100);
-                if (start.oy > 0) py = clamp(start.py - ((e.clientY - start.y) / start.oy) * 100);
-                apply();
+                const x = start.ox > 0 ? clamp(start.px - ((e.clientX - start.x) / start.ox) * 100) : start.px;
+                const y = start.oy > 0 ? clamp(start.py - ((e.clientY - start.y) / start.oy) * 100) : start.py;
+                pos[key] = `${Math.round(x)}% ${Math.round(y)}%`;
+                img.style.objectPosition = pos[key];
+                sync();
             });
 
             const end = () => {
@@ -259,9 +260,9 @@ function renderDescription() {
         });
 
         document.getElementById('cover-pos-reset').addEventListener('click', () => {
-            px = 50;
-            py = 50;
-            apply();
+            EdunityUpload.POS_KEYS.forEach((k) => (pos[k] = '50% 50%'));
+            box.querySelectorAll('img').forEach((im) => (im.style.objectPosition = '50% 50%'));
+            sync();
             save();
         });
     }
