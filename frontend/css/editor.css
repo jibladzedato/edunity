@@ -2918,19 +2918,17 @@ body {
 
 /* ==== Кнопка входа через Google ==== */
 .google-signin {
-    display: flex;
-    justify-content: center;
     width: 100%;
-    min-height: 48px;
 }
-.google-signin > div,
-.google-signin iframe {
-    margin: 0 auto !important;
-}
-/* Google отрисовывает кнопку в своём контейнере — растягиваем его */
-.google-signin > div {
-    width: 100% !important;
-    max-width: 400px;
+/* Настоящая кнопка Google: нужна для работы, но не показывается —
+   вместо неё видна своя, одного размера с кнопкой входа. */
+.google-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
 }
 
 /* ==== Страница "სწავლება" ==== */

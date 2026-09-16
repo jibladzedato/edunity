@@ -1,7 +1,7 @@
 // Вход через Google.
 //
-// Работает так: браузер получает от Google подписанный токен, отправляет его
-// нам, а сервер проверяет подпись. Данным из браузера доверять нельзя —
+// Браузер получает от Google подписанный токен и отправляет его нам,
+// а сервер проверяет подпись. Данным из браузера доверять нельзя —
 // проверка на сервере обязательна, иначе вход подделывается тривиально.
 //
 // Если GOOGLE_CLIENT_ID на сервере не задан, кнопка просто не появляется.
@@ -32,7 +32,12 @@ const EdunityGoogle = (function () {
     }
   }
 
-  // container — элемент, вместо которого отрисуется кнопка Google
+  // container — элемент, вместо которого появится кнопка Google.
+  //
+  // Google рисует свою кнопку внутри iframe и не даёт сделать её шире 400px,
+  // поэтому она выбивалась из формы. Решение: настоящая кнопка прячется,
+  // а сверху показывается своя — с размерами как у кнопки входа.
+  // Клик по ней программно нажимает настоящую.
   async function render(container) {
     if (!container) return;
 
@@ -51,19 +56,38 @@ const EdunityGoogle = (function () {
         callback: handleCredential,
       });
 
-      container.innerHTML = '';
-      // Ширину берём от контейнера, чтобы кнопка была во всю форму.
-      // Google ограничивает её 400 пикселями — больше он не отрисует.
-      const width = Math.min(container.offsetWidth || 360, 400);
+      container.innerHTML =
+        '<div class="google-hidden" aria-hidden="true"></div>' +
+        '<button type="button" class="avtorizacia-google">' +
+        '<img src="../assets/google.svg" alt="">' +
+        'გაგრძელება Google-ით' +
+        '</button>';
 
-      google.accounts.id.renderButton(container, {
+      const hidden = container.querySelector('.google-hidden');
+      const visible = container.querySelector('.avtorizacia-google');
+
+      google.accounts.id.renderButton(hidden, {
         theme: 'outline',
         size: 'large',
         text: 'continue_with',
-        shape: 'rectangular',
-        logo_alignment: 'center',
-        width,
-        locale: 'ka',
+        width: 300,
+      });
+
+      visible.addEventListener('click', () => {
+        // ищем настоящую кнопку внутри контейнера Google и нажимаем её
+        const real =
+          hidden.querySelector('div[role="button"]') ||
+          hidden.querySelector('button') ||
+          hidden.querySelector('iframe');
+
+        if (real && typeof real.click === 'function') {
+          real.click();
+        } else {
+          // если структура Google изменилась — показываем их кнопку как есть,
+          // чтобы вход всё равно остался рабочим
+          hidden.classList.remove('google-hidden');
+          visible.remove();
+        }
       });
     } catch (err) {
       console.error('[google-auth]', err.message);
