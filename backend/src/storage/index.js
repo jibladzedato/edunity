@@ -121,6 +121,48 @@ const s3Driver = {
 };
 
 // ==========================================================
+// Подписанные ссылки (для видео уроков)
+//
+// Без подписи ссылку на видео можно переслать кому угодно и курс
+// растащат. Подпись живёт несколько часов — хватает на просмотр урока,
+// но не на раздачу ссылки.
+// ==========================================================
+const SIGN_TTL = Number(process.env.MEDIA_LINK_TTL || 6 * 3600); // секунды
+
+function localSign(key, exp) {
+  return crypto
+    .createHmac('sha256', process.env.JWT_SECRET || 'dev')
+    .update(`${key}:${exp}`)
+    .digest('hex')
+    .slice(0, 32);
+}
+
+function checkLocalSign(key, exp, sig) {
+  if (!exp || !sig || Number(exp) * 1000 < Date.now()) return false;
+  const good = Buffer.from(localSign(key, exp));
+  const got = Buffer.from(String(sig));
+  return good.length === got.length && crypto.timingSafeEqual(good, got);
+}
+
+async function signUrl(url) {
+  const key = keyFromUrl(url);
+  if (!key) return url;
+
+  if (DRIVER !== 's3') {
+    const exp = Math.floor(Date.now() / 1000) + SIGN_TTL;
+    return `/uploads/${key}?exp=${exp}&sig=${localSign(key, exp)}`;
+  }
+
+  const { GetObjectCommand } = require('@aws-sdk/client-s3');
+  const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+  return getSignedUrl(
+    getS3(),
+    new GetObjectCommand({ Bucket: process.env.S3_BUCKET, Key: key }),
+    { expiresIn: SIGN_TTL }
+  );
+}
+
+// ==========================================================
 const driver = DRIVER === 's3' ? s3Driver : localDriver;
 
 if (DRIVER === 's3') {
@@ -140,5 +182,7 @@ module.exports = {
   keyFromUrl,
   save: (tempPath, key, mimeType) => driver.save(tempPath, key, mimeType),
   remove: (url) => driver.remove(url),
+  signUrl,
+  checkLocalSign,
   LOCAL_ROOT,
 };

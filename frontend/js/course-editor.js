@@ -133,7 +133,11 @@ function renderDescription() {
             </div>
             <div class="editor-field">
                 <label for="f-price">ფასი (₾) <span class="editor-hint">0 = უფასო</span></label>
-                <input type="number" id="f-price" value="${course.price || 0}" min="0">
+                <input type="number" id="f-price" value="${course.price || 0}" min="0" max="9999" step="1">
+            </div>
+            <div class="editor-field">
+                <label for="f-duration">ხანგრძლივობა (საათი) <span class="editor-hint">0 = არ ჩანს</span></label>
+                <input type="number" id="f-duration" value="${course.durationHours || 0}" min="0" max="999" step="1">
             </div>
         </div>
 
@@ -280,7 +284,8 @@ function renderDescription() {
                 description: descriptionHtml || null,
                 category: document.getElementById('f-category').value || null,
                 level: document.getElementById('f-level').value || null,
-                price: Number(document.getElementById('f-price').value) || 0,
+                price: Math.min(9999, Math.max(0, Math.round(Number(document.getElementById('f-price').value) || 0))),
+                durationHours: Math.min(999, Math.max(0, Math.round(Number(document.getElementById('f-duration').value) || 0))),
                 hasCertificate: document.getElementById('f-cert').checked,
             });
             course = updated;

@@ -13,9 +13,38 @@ const EdunityUpload = (function () {
     return url;
   }
 
+  // Сжатие картинки в браузере: обложка 8 МБ в карточке шириной 240px
+  // не нужна никому. Уменьшаем до 1280px и переводим в WebP.
+  // Трафик на сервер и место в хранилище — меньше в разы.
+  const MAX_SIDE = 1280;
+
+  async function shrink(file) {
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return file;
+
+    try {
+      const bitmap = await createImageBitmap(file);
+      const scale = Math.min(1, MAX_SIDE / Math.max(bitmap.width, bitmap.height));
+      // мелкие файлы не трогаем
+      if (scale === 1 && file.size < 400 * 1024) return file;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(bitmap.width * scale);
+      canvas.height = Math.round(bitmap.height * scale);
+      canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      bitmap.close();
+
+      const blob = await new Promise((r) => canvas.toBlob(r, 'image/webp', 0.85));
+      if (!blob || blob.size >= file.size) return file; // хуже — оставляем оригинал
+
+      return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.webp', { type: 'image/webp' });
+    } catch (e) {
+      return file; // старый браузер — отправляем как есть
+    }
+  }
+
   async function send(file, kind) {
     const form = new FormData();
-    form.append('file', file);
+    form.append('file', await shrink(file));
 
     const token = EdunityAuth.getToken();
     const res = await fetch(window.EDUNITY_CONFIG.API_BASE_URL + '/uploads/' + kind, {

@@ -108,7 +108,7 @@ function render() {
                                </div>`
                             : ''
                     }
-                    <div class="course-price">${course.price === 0 ? 'უფასო' : esc(course.price) + '₾'}</div>
+                    <div class="course-price">${EdunityUI.price(course.price)}</div>
                     <button class="course-start-btn" id="course-action-btn">...</button>
                     <div class="course-stats">
                         <div>${structure.length} მოდული</div>

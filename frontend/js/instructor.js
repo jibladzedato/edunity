@@ -53,7 +53,7 @@ async function load() {
                                     <span><span class="rating-star">★</span> ${esc(rating)}</span>
                                     <span>${c.lessonsCount} გაკვეთილი</span>
                                     <span>${c.studentsCount} მოსწავლე</span>
-                                    <span class="instructor-course-price">${c.price === 0 ? 'უფასო' : esc(c.price) + '₾'}</span>
+                                    <span class="instructor-course-price">${EdunityUI.price(c.price)}</span>
                                 </div>
                             </div>
                         </a>`;

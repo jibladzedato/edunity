@@ -59,6 +59,7 @@ function publicCourse(row) {
     coverPos: row.cover_pos || '50% 50%',
     category: row.category,
     price: row.price,
+    durationHours: row.duration_hours || 0,
     hasCertificate: row.has_certificate,
     level: row.level,
     language: row.language,
@@ -333,6 +334,7 @@ router.patch('/:id', requireAuth, async (req, res) => {
     coverPos: 'cover_pos',
     category: 'category',
     price: 'price',
+    durationHours: 'duration_hours',
     hasCertificate: 'has_certificate',
     level: 'level',
     language: 'language',
@@ -359,6 +361,18 @@ router.patch('/:id', requireAuth, async (req, res) => {
         });
       }
     }
+  }
+
+  // цена: целое от 0 до 9999 ₾
+  if (req.body.price !== undefined) {
+    const p = Number(req.body.price);
+    if (!Number.isInteger(p) || p < 0 || p > 9999) return fail(res, 400, 'ფასი უნდა იყოს 0-დან 9999-მდე');
+  }
+
+  // длительность: целое от 0 до 999 часов (0 — не указана)
+  if (req.body.durationHours !== undefined) {
+    const h = Number(req.body.durationHours);
+    if (!Number.isInteger(h) || h < 0 || h > 999) return fail(res, 400, 'ხანგრძლივობა უნდა იყოს 0-დან 999-მდე');
   }
 
   // положение обложки: до 4 пар "X% Y%" через "|" (card|row|hero|thumb)
@@ -664,8 +678,18 @@ router.get('/:id/analytics', requireAuth, async (req, res) => {
 // ==========================================================
 router.post('/:id/enroll', requireAuth, requireVerified, async (req, res) => {
   try {
-    const c = await pool.query(`SELECT id FROM courses WHERE id = $1 AND status = 'published'`, [req.params.id]);
+    const c = await pool.query(`SELECT id, price FROM courses WHERE id = $1 AND status = 'published'`, [req.params.id]);
     if (c.rows.length === 0) return fail(res, 404, 'კურსი ვერ მოიძებნა');
+
+    // Платные курсы: запись только после оплаты. Пока оплаты нет — вход закрыт,
+    // иначе платный курс забирается одним запросом бесплатно.
+    if (Number(c.rows[0].price) > 0) {
+      const paid = await pool.query(
+        `SELECT 1 FROM payments WHERE user_id = $1 AND course_id = $2 AND status = 'paid' LIMIT 1`,
+        [req.userId, req.params.id]
+      );
+      if (paid.rows.length === 0) return fail(res, 402, 'კურსი ფასიანია — გადახდა ჯერ მიუწვდომელია');
+    }
 
     await pool.query(
       'INSERT INTO enrollments (user_id, course_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',

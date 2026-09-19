@@ -110,5 +110,11 @@ const EdunityUI = (function () {
     }, 3200);
   }
 
-  return { prompt, confirm, toast };
+  // Цена одинаково выглядит везде: «უფასო» или «1 200₾»
+  function price(value) {
+    const n = Number(value) || 0;
+    return n === 0 ? 'უფასო' : n.toLocaleString('ka-GE').replace(/,/g, ' ') + '₾';
+  }
+
+  return { prompt, confirm, toast, price };
 })();

@@ -6,6 +6,14 @@ const { helpers } = require('./courses');
 const { enforceAfterChange } = require('../db/publish-rules');
 const { removeIfOrphan, stepFiles } = require('../db/uploads-cleanup');
 const { sanitizeHtml } = require('../db/sanitize');
+const storage = require('../storage');
+
+// Ссылку на видео отдаём подписанной и недолгой, чтобы её нельзя было
+// переслать в обход покупки курса.
+async function signStep(step) {
+  if (step.type !== 'video' || !step.content || !step.content.url) return step;
+  return { ...step, content: { ...step.content, url: await storage.signUrl(step.content.url) } };
+}
 
 // Меняет местами элемент и его соседа — так автор двигает модуль/урок/шаг
 // вверх или вниз. Работает через position внутри одного родителя.
@@ -230,7 +238,7 @@ router.get('/lessons/:id/steps', optionalAuth, async (req, res) => {
       courseId: lesson.rows[0].course_id,
       courseTitle: lesson.rows[0].course_title,
       isOwner: lesson.rows[0].author_id === req.userId,
-      steps: steps.rows,
+      steps: await Promise.all(steps.rows.map(signStep)),
       progress,
     });
   } catch (err) {
@@ -291,12 +299,14 @@ router.get('/steps/:id', optionalAuth, async (req, res) => {
     const access = await canAccessCourse(s.course_id, req.userId);
     if (!access.ok) return fail(res, access.code, access.message);
 
+    const signed = await signStep({ type: s.type, content: s.content });
+
     res.json({
       id: s.id,
       lessonId: s.lesson_id,
       type: s.type,
       position: s.position,
-      content: s.content,
+      content: signed.content,
       lessonTitle: s.lesson_title,
       moduleTitle: s.module_title,
       courseId: s.course_id,

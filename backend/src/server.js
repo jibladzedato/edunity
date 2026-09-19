@@ -34,6 +34,15 @@ app.use(express.json());
 // В режиме S3/R2 они лежат в облаке и отдаются оттуда напрямую.
 const storage = require('./storage');
 if (storage.isLocal) {
+  // видео отдаём только по подписанной ссылке, остальное открыто
+  app.use('/uploads', (req, res, next) => {
+    if (!/\.(mp4|webm|mov|m4v)$/i.test(req.path)) return next();
+    const key = req.path.replace(/^\//, '');
+    if (!storage.checkLocalSign(key, req.query.exp, req.query.sig)) {
+      return res.status(403).json({ error: 'ბმული აღარ მოქმედებს' });
+    }
+    next();
+  });
   app.use('/uploads', express.static(storage.LOCAL_ROOT, { maxAge: '7d' }));
 }
 

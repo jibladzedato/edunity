@@ -45,7 +45,6 @@ function renderCourseCard(course) {
     card.className = 'kursi-card';
 
     const initial = (course.title || '?').trim().charAt(0).toUpperCase();
-    const rating = Number(course.rating) > 0 ? course.rating : '—';
 
     card.innerHTML = `
         ${
@@ -55,11 +54,15 @@ function renderCourseCard(course) {
         }
         <div class="kursi-body">
             <div class="reitingi">
-                <div class="shefaseba">
+                ${
+                    Number(course.rating) > 0
+                        ? `<div class="shefaseba">
                     <span class="rating-star">★</span>
-                    <span class="rating-value">${esc(rating)}</span>
-                </div>
-                <span class="kursis-fasi">${course.price === 0 ? 'უფასო' : esc(course.price) + '₾'}</span>
+                    <span class="rating-value">${esc(course.rating)}</span>
+                </div>`
+                        : '<span class="shefaseba-carieli">შეფასება ჯერ არ არის</span>'
+                }
+                <span class="kursis-fasi">${EdunityUI.price(course.price)}</span>
             </div>
 
             <div class="kursis-saxeli">${esc(course.title)}</div>
@@ -69,10 +72,15 @@ function renderCourseCard(course) {
                     <img src="../assets/gakvetilebi.svg" alt="">
                     ${course.lessonsCount || 0} გაკვეთილი
                 </div>
-                <div class="agwera-item">
+                ${
+                    course.durationHours
+                        ? `<div class="agwera-item">
                     <img src="../assets/dro.svg" alt="">
-                    ${course.studentsCount || 0} მოსწავლე
-                </div>
+                    ${course.durationHours} საათი
+                </div>`
+                        : ''
+                }
+                <div class="agwera-item">${course.studentsCount || 0} მოსწავლე</div>
             </div>
 
             <div class="kursis-footer">

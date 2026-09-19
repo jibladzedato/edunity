@@ -50,7 +50,6 @@ function renderkursebi(courses) {
         card.className = 'kursi-card';
 
         const initial = (course.title || '?').trim().charAt(0).toUpperCase();
-        const rating = Number(course.rating) > 0 ? course.rating : '—';
 
         card.innerHTML = `
             ${course.coverUrl
@@ -58,11 +57,15 @@ function renderkursebi(courses) {
                 : `<div class="kursi-picture kursi-noimg">${initial}</div>`}
             <div class="kursi-body">
                 <div class="reitingi">
-                    <div class="shefaseba">
+                    ${
+                        Number(course.rating) > 0
+                            ? `<div class="shefaseba">
                         <span class="rating-star">★</span>
-                        <span class="rating-value">${rating}</span>
-                    </div>
-                    <span class="kursis-fasi">${course.price === 0 ? 'უფასო' : course.price + '₾'}</span>
+                        <span class="rating-value">${course.rating}</span>
+                    </div>`
+                            : '<span class="shefaseba-carieli">შეფასება ჯერ არ არის</span>'
+                    }
+                    <span class="kursis-fasi">${EdunityUI.price(course.price)}</span>
                 </div>
 
                 <div class="kursis-saxeli">${course.title}</div>
@@ -73,10 +76,15 @@ function renderkursebi(courses) {
                         ${course.lessonsCount || 0} გაკვეთილი
                     </div>
 
-                    <div class="agwera-item">
+                    ${
+                        course.durationHours
+                            ? `<div class="agwera-item">
                         <img src="assets/dro.svg" alt="">
-                        ${course.studentsCount || 0} მოსწავლე
-                    </div>
+                        ${course.durationHours} საათი
+                    </div>`
+                            : ''
+                    }
+                    <div class="agwera-item">${course.studentsCount || 0} მოსწავლე</div>
                 </div>
 
                 <div class="kursis-footer">
