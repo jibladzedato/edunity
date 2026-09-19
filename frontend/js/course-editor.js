@@ -134,10 +134,12 @@ function renderDescription() {
             <div class="editor-field">
                 <label for="f-price">ფასი (₾) <span class="editor-hint">0 = უფასო</span></label>
                 <input type="number" id="f-price" value="${course.price || 0}" min="0" max="9999" step="1">
+                <div class="field-error" id="err-price" hidden></div>
             </div>
             <div class="editor-field">
                 <label for="f-duration">ხანგრძლივობა (საათი) <span class="editor-hint">0 = არ ჩანს</span></label>
                 <input type="number" id="f-duration" value="${course.durationHours || 0}" min="0" max="999" step="1">
+                <div class="field-error" id="err-duration" hidden></div>
             </div>
         </div>
 
@@ -272,8 +274,37 @@ function renderDescription() {
     }
     renderCoverPos();
 
+    // Числовые поля: подсвечиваем ошибку и не даём сохранить,
+    // вместо тихой подмены значения на максимум.
+    function checkNumber(id, max, message) {
+        const input = document.getElementById(id);
+        const err = document.getElementById('err-' + id.replace('f-', ''));
+        const value = Number(input.value);
+        const bad = input.value.trim() === '' || !Number.isInteger(value) || value < 0 || value > max;
+
+        input.classList.toggle('invalid', bad);
+        err.hidden = !bad;
+        err.textContent = bad ? message : '';
+        return bad ? null : value;
+    }
+
+    ['f-price', 'f-duration'].forEach((id) => {
+        document.getElementById(id).addEventListener('input', () => {
+            document.getElementById(id).classList.remove('invalid');
+            document.getElementById('err-' + id.replace('f-', '')).hidden = true;
+        });
+    });
+
     document.getElementById('save-description').addEventListener('click', async (e) => {
         const btn = e.target;
+
+        const price = checkNumber('f-price', 9999, 'ფასი უნდა იყოს მთელი რიცხვი 0-დან 9999-მდე');
+        const durationHours = checkNumber('f-duration', 999, 'ხანგრძლივობა უნდა იყოს მთელი რიცხვი 0-დან 999-მდე');
+        if (price === null || durationHours === null) {
+            EdunityUI.toast('შეავსე ველები სწორად');
+            return;
+        }
+
         btn.disabled = true;
         try {
             const updated = await EdunityAPI.updateCourse(courseId, {
@@ -284,8 +315,8 @@ function renderDescription() {
                 description: descriptionHtml || null,
                 category: document.getElementById('f-category').value || null,
                 level: document.getElementById('f-level').value || null,
-                price: Math.min(9999, Math.max(0, Math.round(Number(document.getElementById('f-price').value) || 0))),
-                durationHours: Math.min(999, Math.max(0, Math.round(Number(document.getElementById('f-duration').value) || 0))),
+                price,
+                durationHours,
                 hasCertificate: document.getElementById('f-cert').checked,
             });
             course = updated;

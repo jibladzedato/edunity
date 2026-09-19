@@ -42,14 +42,30 @@ async function moveItem(table, parentColumn, id, direction) {
 }
 
 // Уроки чужого черновика или заблокированного курса не должны открываться
-// по прямой ссылке. Доступ есть у автора всегда, остальным — только к
-// опубликованному курсу.
+// по прямой ссылке. Доступ есть у автора и админа всегда, остальным —
+// только к опубликованному курсу и только после записи на него:
+// иначе ссылку на урок можно переслать кому угодно, даже без входа.
 async function canAccessCourse(courseId, userId) {
   const r = await pool.query('SELECT status, author_id FROM courses WHERE id = $1', [courseId]);
   const c = r.rows[0];
   if (!c) return { ok: false, code: 404, message: 'კურსი ვერ მოიძებნა' };
-  if (c.author_id === userId) return { ok: true };
-  if (c.status === 'published') return { ok: true };
+  if (userId && c.author_id === userId) return { ok: true };
+
+  if (userId) {
+    const admin = await pool.query(`SELECT 1 FROM users WHERE id = $1 AND role IN ('admin', 'owner')`, [userId]);
+    if (admin.rows.length > 0) return { ok: true };
+  }
+
+  if (c.status === 'published') {
+    if (!userId) return { ok: false, code: 401, message: 'გაიარე ავტორიზაცია' };
+
+    const enrolled = await pool.query(
+      'SELECT 1 FROM enrollments WHERE user_id = $1 AND course_id = $2',
+      [userId, courseId]
+    );
+    if (enrolled.rows.length === 0) return { ok: false, code: 403, message: 'ჯერ ჩაეწერე კურსზე' };
+    return { ok: true };
+  }
   if (c.status === 'blocked') {
     return { ok: false, code: 403, message: 'კურსი დროებით მიუწვდომელია — ადმინისტრაცია ამოწმებს' };
   }

@@ -49,7 +49,7 @@ function renderStepContent(step) {
 
     if (step.type === 'video') {
         if (!c.url) return '<p class="editor-empty">ვიდეო ჯერ არ არის დამატებული</p>';
-        return `<div class="lesson-video"><video src="${esc(mediaUrl(c.url))}" controls preload="metadata"></video></div>`;
+        return `<div class="lesson-video"><video src="${esc(mediaUrl(c.url))}" controls controlsList="nodownload noplaybackrate" disablePictureInPicture oncontextmenu="return false" preload="metadata"></video></div>`;
     }
 
     if (step.type === 'quiz') {
