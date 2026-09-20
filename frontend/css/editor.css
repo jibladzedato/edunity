@@ -3181,3 +3181,33 @@ body {
         order: 1;
     }
 }
+
+/* ==== Телефон: меню редактора — лента наверху ==== */
+@media (max-width: 767px) {
+    .editor-nav {
+        position: sticky;
+        top: 0;
+        z-index: 60;
+        flex-direction: row;
+        gap: 6px;
+        overflow-x: auto;
+        background: #fff;
+        border-bottom: 1px solid #e5e9e3;
+        padding: 8px 14px;
+        margin: 0;
+        -webkit-overflow-scrolling: touch;
+    }
+    .editor-nav-item {
+        white-space: nowrap;
+        padding: 8px 14px;
+        border-radius: 18px;
+        background: #f0f2ef;
+        font-size: 13px;
+    }
+    .editor-nav-item.active {
+        background: #5fb670;
+    }
+    .editor-sidebar {
+        padding-top: 16px;
+    }
+}

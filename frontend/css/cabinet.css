@@ -206,3 +206,20 @@
         padding: 40px 40px 80px;
     }
 }
+
+/* ==== Телефон: вкладки кабинета — лента наверху ==== */
+@media (max-width: 767px) {
+    .cab-tabs {
+        position: sticky;
+        top: 0;
+        z-index: 60;
+        background: #fff;
+        padding: 8px 4px;
+        margin: 0 0 16px;
+        -webkit-overflow-scrolling: touch;
+    }
+    .cab-tab {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+}

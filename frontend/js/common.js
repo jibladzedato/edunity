@@ -58,3 +58,23 @@
     }
   });
 })();
+
+
+// ==== Телефон: меню страницы всегда сверху ====
+// На узком экране меню редактора и вкладки кабинета оказывались под
+// содержимым. Переносим их в начало блока, порядок в разметке для этого
+// уже не важен.
+(function liftMobileNav() {
+  if (window.innerWidth >= 768) return;
+
+  const pairs = [
+    ['.editor-nav', '.editor-layout'],
+    ['.cab-tabs', '.cab-page'],
+  ];
+
+  pairs.forEach(([navSel, boxSel]) => {
+    const nav = document.querySelector(navSel);
+    const box = document.querySelector(boxSel);
+    if (nav && box && box.firstElementChild !== nav) box.prepend(nav);
+  });
+})();
