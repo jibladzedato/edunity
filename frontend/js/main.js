@@ -84,7 +84,10 @@ function renderkursebi(courses) {
                     </div>`
                             : ''
                     }
-                    <div class="agwera-item">${course.studentsCount || 0} მოსწავლე</div>
+                    <div class="agwera-item">
+                        <img src="assets/person.svg" alt="">
+                        ${course.studentsCount || 0} მოსწავლე
+                    </div>
                 </div>
 
                 <div class="kursis-footer">
