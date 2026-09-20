@@ -71,7 +71,7 @@ const EdunityUpload = (function () {
       if (kind === 'image') {
         return `<img class="up-preview-img" src="${src}" alt="" data-src="${src}">`;
       }
-      return `<video class="up-preview-video" src="${src}" controls data-src="${src}"></video>`;
+      return `<video class="up-preview-video" src="${src}" controls controlsList="nodownload noplaybackrate" disablePictureInPicture oncontextmenu="return false" data-src="${src}"></video>`;
     }
 
     // Если файл не открывается — показываем причину, а не прячем молча
