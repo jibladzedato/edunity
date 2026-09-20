@@ -3158,3 +3158,26 @@ body {
 .editor-row .editor-field label {
     min-height: 38px;
 }
+
+/* ==== Телефон: меню редактора всегда первое ==== */
+/* Порядок задаётся стилями, а не только разметкой, чтобы меню
+   не уезжало вниз под содержимое. */
+@media (max-width: 767px) {
+    .editor-layout {
+        flex-direction: column;
+    }
+    .editor-sidebar {
+        order: -1;
+        display: flex;
+        flex-direction: column;
+    }
+    .editor-nav {
+        order: -1;
+    }
+    .editor-back {
+        align-self: flex-start;
+    }
+    .editor-main {
+        order: 1;
+    }
+}
