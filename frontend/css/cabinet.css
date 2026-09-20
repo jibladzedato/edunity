@@ -207,19 +207,24 @@
     }
 }
 
-/* ==== Телефон: вкладки кабинета — лента наверху ==== */
+/* ==== Телефон: вкладки кабинета — список наверху ==== */
 @media (max-width: 767px) {
     .cab-tabs {
-        position: sticky;
-        top: 0;
-        z-index: 60;
-        background: #fff;
-        padding: 8px 4px;
-        margin: 0 0 16px;
-        -webkit-overflow-scrolling: touch;
+        flex-direction: column;
+        gap: 2px;
+        overflow-x: visible;
+        border-bottom: 1px solid #e5e9e3;
+        padding: 0 0 10px;
+        margin: 0 0 18px;
     }
     .cab-tab {
-        padding: 8px 12px;
-        font-size: 13px;
+        text-align: left;
+        border-bottom: none;
+        border-radius: 10px;
+        padding: 11px 14px;
+    }
+    .cab-tab.active {
+        background: #5fb670;
+        color: #fff;
     }
 }
