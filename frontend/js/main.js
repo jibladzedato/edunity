@@ -1,3 +1,11 @@
+// Экранирование: название курса и имя автора вводят пользователи,
+// без этого в них можно вставить <script> и украсть чужой токен.
+function esc(v) {
+    return String(v ?? '').replace(/[&<>"']/g, (ch) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[ch]));
+}
+
 // Логика главной страницы: слайдер категорий + рендер курсов/лекторов из API
 // Бургер-меню и авторизация в шапке — в common.js (подключается раньше этого файла)
 
@@ -68,7 +76,7 @@ function renderkursebi(courses) {
                     <span class="kursis-fasi">${EdunityUI.price(course.price)}</span>
                 </div>
 
-                <div class="kursis-saxeli">${course.title}</div>
+                <div class="kursis-saxeli">${esc(course.title)}</div>
 
                 <div class="kursis-agwera">
                     <div class="agwera-item">
@@ -92,7 +100,7 @@ function renderkursebi(courses) {
 
                 <div class="kursis-footer">
                     <div class="avtori">
-                        <span class="avtoris-saxeli">${course.authorName}</span>
+                        <span class="avtoris-saxeli">${esc(course.authorName)}</span>
                     </div>
 
                     <button class="kursis-dawyeba" data-id="${course.id}">ნახვა</button>
@@ -140,7 +148,7 @@ function renderLektorebi(instructors) {
                 ? `<img src="${EdunityUpload.fileUrl(leqtori.avatarUrl)}" alt="">`
                 : `<div class="leqtori-initial">${initial}</div>`}
             <div class="leqtoris-agwera">
-                <div class="leqtoris-saxeli">${leqtori.name}</div>
+                <div class="leqtoris-saxeli">${esc(leqtori.name)}</div>
                 <div class="leqtoris-pozicia">${leqtori.coursesCount} კურსი</div>
             </div>
         `;

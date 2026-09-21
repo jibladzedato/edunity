@@ -5,6 +5,13 @@
 //   const yes = await EdunityUI.confirm({ title: '...', text: '...' });
 
 const EdunityUI = (function () {
+  // В модалки попадают названия курсов и имена — это ввод пользователей
+  function esc(v) {
+    return String(v ?? '').replace(/[&<>"']/g, (ch) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[ch]));
+  }
+
   function buildOverlay() {
     const overlay = document.createElement('div');
     overlay.className = 'ui-modal';
@@ -22,8 +29,8 @@ const EdunityUI = (function () {
       const overlay = buildOverlay();
       overlay.innerHTML = `
         <div class="ui-modal-box">
-          <h3 class="ui-modal-title">${title}</h3>
-          ${text ? `<p class="ui-modal-text">${text}</p>` : ''}
+          <h3 class="ui-modal-title">${esc(title)}</h3>
+          ${text ? `<p class="ui-modal-text">${esc(text)}</p>` : ''}
           <input type="text" class="ui-modal-input" placeholder="${placeholder}" value="${value}">
           <div class="ui-modal-actions">
             <button class="ui-modal-btn ghost" data-act="cancel">${cancelText}</button>
@@ -70,8 +77,8 @@ const EdunityUI = (function () {
       const overlay = buildOverlay();
       overlay.innerHTML = `
         <div class="ui-modal-box">
-          <h3 class="ui-modal-title">${title}</h3>
-          ${text ? `<p class="ui-modal-text">${text}</p>` : ''}
+          <h3 class="ui-modal-title">${esc(title)}</h3>
+          ${text ? `<p class="ui-modal-text">${esc(text)}</p>` : ''}
           <div class="ui-modal-actions">
             <button class="ui-modal-btn ghost" data-act="cancel">${cancelText}</button>
             <button class="ui-modal-btn ${danger ? 'danger' : 'primary'}" data-act="ok">${okText}</button>
