@@ -3,6 +3,8 @@ const pool = require('../db/pool');
 const { requireAuth } = require('../middleware/auth');
 const { previewDeletion, deleteAccount } = require('../db/delete-account');
 const mail = require('../mail');
+const storage = require('../storage');
+const { sanitizeHtml } = require('../db/sanitize');
 
 const router = express.Router();
 
@@ -398,6 +400,147 @@ router.delete('/categories/:id', async (req, res) => {
   } catch (err) {
     console.error('Ошибка удаления категории:', err);
     res.status(500).json({ error: 'სერვერის შეცდომა' });
+  }
+});
+
+// ==========================================================
+// Экспорт / импорт курса — только владелец сайта
+//
+// Экспорт отдаёт курс целиком (без учеников и прогресса) и список
+// медиафайлов. Браузер сам скачивает файлы и собирает zip — сервер
+// на бесплатном тарифе не должен держать гигабайты видео в памяти.
+// Импорт принимает тот же JSON, где ссылки уже заменены на новые
+// (браузер заново загрузил файлы), и создаёт курс-черновик.
+// ==========================================================
+function requireOwner(req, res, next) {
+  if (req.userRole !== 'owner') return res.status(403).json({ error: 'მხოლოდ საიტის მფლობელს შეუძლია' });
+  next();
+}
+
+const EXPORT_FIELDS = [
+  'title', 'summary', 'description', 'cover_url', 'cover_pos', 'category',
+  'price', 'has_certificate', 'level', 'language', 'duration_hours',
+];
+const STEP_TYPES = ['text', 'video', 'quiz', 'code'];
+
+router.get('/courses/:id/export', requireOwner, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const c = await pool.query(`SELECT author_id, ${EXPORT_FIELDS.join(', ')} FROM courses WHERE id = $1`, [id]);
+    if (c.rows.length === 0) return res.status(404).json({ error: 'კურსი ვერ მოიძებნა' });
+
+    const { author_id: authorId, ...course } = c.rows[0];
+
+    const mods = await pool.query('SELECT id, title, position FROM modules WHERE course_id = $1 ORDER BY position, id', [id]);
+    const less = await pool.query(
+      `SELECT l.id, l.module_id, l.title, l.position FROM lessons l
+       JOIN modules m ON m.id = l.module_id WHERE m.course_id = $1 ORDER BY l.position, l.id`,
+      [id]
+    );
+    const steps = await pool.query(
+      `SELECT s.lesson_id, s.type, s.position, s.content FROM steps s
+       JOIN lessons l ON l.id = s.lesson_id JOIN modules m ON m.id = l.module_id
+       WHERE m.course_id = $1 ORDER BY s.position, s.id`,
+      [id]
+    );
+
+    course.modules = mods.rows.map((m) => ({
+      title: m.title,
+      position: m.position,
+      lessons: less.rows
+        .filter((l) => l.module_id === m.id)
+        .map((l) => ({
+          title: l.title,
+          position: l.position,
+          steps: steps.rows
+            .filter((s) => s.lesson_id === l.id)
+            .map((s) => ({ type: s.type, position: s.position, content: s.content })),
+        })),
+    }));
+
+    // Медиа — загруженные автором файлы, на которые ссылается курс
+    const text = JSON.stringify(course);
+    const files = await pool.query('SELECT DISTINCT url, mime_type, kind FROM uploads WHERE user_id = $1', [authorId]);
+    const media = [];
+    for (const f of files.rows) {
+      if (!text.includes(f.url)) continue;
+      media.push({ url: f.url, mimeType: f.mime_type, kind: f.kind, fetchUrl: await storage.signUrl(f.url) });
+    }
+
+    res.json({ format: 'edunity-course', version: 1, exportedAt: new Date().toISOString(), course, media });
+  } catch (err) {
+    console.error('Ошибка экспорта курса:', err);
+    res.status(500).json({ error: 'სერვერის შეცდომა' });
+  }
+});
+
+router.post('/courses/import', requireOwner, async (req, res) => {
+  const course = req.body && req.body.course;
+  if (!course || typeof course.title !== 'string' || !course.title.trim() || !Array.isArray(course.modules)) {
+    return res.status(400).json({ error: 'ფაილი არ არის EDUNITY-ის კურსი' });
+  }
+
+  const int = (v, max) => Math.min(max, Math.max(0, Math.round(Number(v) || 0)));
+  const str = (v, len) => (typeof v === 'string' ? v.slice(0, len) : null);
+  const pos = /^\d{1,3}% \d{1,3}%(\|\d{1,3}% \d{1,3}%){0,3}$/.test(course.cover_pos || '') ? course.cover_pos : '50% 50%';
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const c = await client.query(
+      `INSERT INTO courses (author_id, title, summary, description, cover_url, cover_pos, category,
+                            price, has_certificate, level, language, duration_hours, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'draft') RETURNING id`,
+      [
+        req.userId,
+        course.title.trim().slice(0, 200),
+        str(course.summary, 5000),
+        typeof course.description === 'string' ? sanitizeHtml(course.description) : null,
+        str(course.cover_url, 1000),
+        pos,
+        str(course.category, 100),
+        int(course.price, 9999),
+        !!course.has_certificate,
+        str(course.level, 20),
+        str(course.language, 20) || 'ka',
+        int(course.duration_hours, 999),
+      ]
+    );
+    const courseId = c.rows[0].id;
+
+    for (const [mi, m] of course.modules.entries()) {
+      const mod = await client.query(
+        'INSERT INTO modules (course_id, title, position) VALUES ($1, $2, $3) RETURNING id',
+        [courseId, String(m.title || 'მოდული').slice(0, 200), int(m.position, 10000) || mi + 1]
+      );
+      for (const [li, l] of (Array.isArray(m.lessons) ? m.lessons : []).entries()) {
+        const les = await client.query(
+          'INSERT INTO lessons (module_id, title, position) VALUES ($1, $2, $3) RETURNING id',
+          [mod.rows[0].id, String(l.title || 'გაკვეთილი').slice(0, 200), int(l.position, 10000) || li + 1]
+        );
+        for (const [si, s] of (Array.isArray(l.steps) ? l.steps : []).entries()) {
+          if (!STEP_TYPES.includes(s.type)) continue;
+          const content = s.content && typeof s.content === 'object' ? { ...s.content } : {};
+          // тот же фильтр HTML, что и при обычном сохранении шага
+          if (typeof content.html === 'string') content.html = sanitizeHtml(content.html);
+          if (typeof content.statement === 'string') content.statement = sanitizeHtml(content.statement);
+          await client.query(
+            'INSERT INTO steps (lesson_id, type, position, content) VALUES ($1, $2, $3, $4)',
+            [les.rows[0].id, s.type, int(s.position, 10000) || si + 1, content]
+          );
+        }
+      }
+    }
+
+    await client.query('COMMIT');
+    res.status(201).json({ id: courseId });
+  } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
+    console.error('Ошибка импорта курса:', err);
+    res.status(500).json({ error: 'იმპორტი ვერ მოხერხდა' });
+  } finally {
+    client.release();
   }
 });
 

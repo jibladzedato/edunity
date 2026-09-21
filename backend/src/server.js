@@ -28,6 +28,8 @@ const corsOrigin =
     : true;
 
 app.use(cors({ origin: corsOrigin }));
+// импорт курса присылает большой JSON — только для этого адреса лимит выше
+app.use('/api/admin/courses/import', express.json({ limit: '15mb' }));
 app.use(express.json());
 
 // В локальном режиме файлы раздаёт сам сервер: /uploads/2026-09/xxx.png
