@@ -3219,3 +3219,12 @@ body {
     object-fit: contain;
     flex-shrink: 0;
 }
+
+/* ==== Бэкап курса в админке ==== */
+.backup-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}

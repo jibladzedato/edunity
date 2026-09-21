@@ -190,10 +190,26 @@ async function renderCourses() {
 
     try {
         const courses = await EdunityAPI.adminCourses();
+        try {
+            isOwner = !!(await EdunityAPI.adminMe()).isOwner;
+        } catch (e) {
+            isOwner = false;
+        }
 
         main.innerHTML = `
             <h1 class="editor-h1">კურსების მართვა</h1>
             <p class="editor-sub">დაბლოკილი კურსი ქრება კატალოგიდან. ავტორს რჩება რედაქტირების უფლება, მაგრამ ვერ გამოაქვეყნებს.</p>
+            ${
+                isOwner
+                    ? `<div class="backup-bar">
+                <label class="studio-btn">
+                    კურსის იმპორტი (.zip)
+                    <input type="file" id="import-file" accept=".zip" hidden>
+                </label>
+                <span class="editor-hint" id="backup-status"></span>
+            </div>`
+                    : ''
+            }
 
             ${
                 courses.length === 0
@@ -212,6 +228,7 @@ async function renderCourses() {
                             </div>
                             <div class="admin-row-actions">
                                 <a class="tool-btn" href="course.html?id=${c.id}">ნახვა</a>
+                                ${isOwner ? `<button class="tool-btn" data-export="${c.id}">ექსპორტი</button>` : ''}
                                 ${
                                     c.status === 'blocked'
                                         ? `<button class="tool-btn primary" data-unblock="${c.id}">განბლოკვა</button>`
@@ -223,6 +240,8 @@ async function renderCourses() {
                           .join('')}</div>`
             }
         `;
+
+        if (isOwner) bindBackup();
 
         main.querySelectorAll('[data-block]').forEach((btn) => {
             btn.addEventListener('click', async () => {
@@ -514,3 +533,125 @@ async function init() {
 }
 
 init();
+
+
+// ==========================================================
+// Бэкап курса: экспорт в .zip и импорт обратно (только владелец)
+//
+// Архив: course.json + папка media/. Файлы качает и заливает браузер,
+// поэтому сервер не держит видео в памяти. Ссылки на файлы в course.json
+// заменены на edunity-media://media/N — при импорте файлы загружаются
+// заново и ссылки подставляются новые.
+// ==========================================================
+const MEDIA_PREFIX = 'edunity-media://';
+
+function loadJSZip() {
+    if (window.JSZip) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+        const el = document.createElement('script');
+        el.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+        el.onload = resolve;
+        el.onerror = () => reject(new Error('JSZip ვერ ჩაიტვირთა'));
+        document.head.appendChild(el);
+    });
+}
+
+function extFromMime(mime) {
+    const map = {
+        'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif',
+        'video/mp4': 'mp4', 'video/webm': 'webm', 'video/quicktime': 'mov',
+    };
+    return map[mime] || 'bin';
+}
+
+// JSON-строка с заменой всех вхождений (ссылки встречаются и внутри HTML)
+function replaceAll(text, from, to) {
+    return text.split(from).join(to);
+}
+
+function bindBackup() {
+    const status = document.getElementById('backup-status');
+    const say = (t) => (status.textContent = t);
+
+    main.querySelectorAll('[data-export]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            btn.disabled = true;
+            try {
+                await loadJSZip();
+                const data = await EdunityAPI.adminExportCourse(Number(btn.dataset.export));
+                const zip = new JSZip();
+                let json = JSON.stringify(data.course);
+                const media = [];
+
+                for (const [i, m] of data.media.entries()) {
+                    say(`ფაილი ${i + 1}/${data.media.length}...`);
+                    const res = await fetch(EdunityUpload.fileUrl(m.fetchUrl));
+                    if (!res.ok) throw new Error('ფაილი ვერ ჩამოიტვირთა: ' + m.url);
+                    const name = `media/${i + 1}.${extFromMime(m.mimeType)}`;
+                    zip.file(name, await res.blob());
+                    json = replaceAll(json, m.url, MEDIA_PREFIX + name);
+                    media.push({ name, mimeType: m.mimeType, kind: m.kind });
+                }
+
+                zip.file('course.json', JSON.stringify({
+                    format: data.format,
+                    version: data.version,
+                    exportedAt: data.exportedAt,
+                    course: JSON.parse(json),
+                    media,
+                }, null, 2));
+
+                say('არქივი იქმნება...');
+                const blob = await zip.generateAsync({ type: 'blob' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `edunity-course-${btn.dataset.export}.zip`;
+                a.click();
+                setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+                say('');
+                EdunityUI.toast('ექსპორტი დასრულდა', 'success');
+            } catch (err) {
+                say('');
+                EdunityUI.toast(err.message);
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    });
+
+    document.getElementById('import-file').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        e.target.value = '';
+        if (!file) return;
+
+        try {
+            await loadJSZip();
+            const zip = await JSZip.loadAsync(file);
+            const manifestFile = zip.file('course.json');
+            if (!manifestFile) throw new Error('არქივში არ არის course.json');
+
+            const manifest = JSON.parse(await manifestFile.async('string'));
+            if (manifest.format !== 'edunity-course') throw new Error('ფაილი არ არის EDUNITY-ის კურსი');
+
+            let json = JSON.stringify(manifest.course);
+            for (const [i, m] of (manifest.media || []).entries()) {
+                say(`ატვირთვა ${i + 1}/${manifest.media.length}...`);
+                const entry = zip.file(m.name);
+                if (!entry) continue;
+                const blob = await entry.async('blob');
+                const upload = new File([blob], m.name.split('/').pop(), { type: m.mimeType });
+                const saved = await EdunityUpload.send(upload, m.kind === 'video' ? 'video' : 'image');
+                json = replaceAll(json, MEDIA_PREFIX + m.name, saved.url);
+            }
+
+            say('კურსი იქმნება...');
+            await EdunityAPI.adminImportCourse(JSON.parse(json));
+            say('');
+            EdunityUI.toast('კურსი აღდგა მონახაზად', 'success');
+            renderCourses();
+        } catch (err) {
+            say('');
+            EdunityUI.toast(err.message);
+        }
+    });
+}

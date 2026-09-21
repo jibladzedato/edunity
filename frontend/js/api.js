@@ -189,6 +189,12 @@ const EdunityAPI = {
   adminBlockCourse(id, reason) {
     return apiRequest("/admin/courses/" + id + "/block", { method: "POST", body: { reason }, auth: true });
   },
+  adminExportCourse(id) {
+    return apiRequest("/admin/courses/" + id + "/export", { auth: true });
+  },
+  adminImportCourse(course) {
+    return apiRequest("/admin/courses/import", { method: "POST", body: { course }, auth: true });
+  },
   adminUnblockCourse(id) {
     return apiRequest("/admin/courses/" + id + "/unblock", { method: "POST", auth: true });
   },
