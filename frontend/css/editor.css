@@ -3211,3 +3211,11 @@ body {
         padding-top: 16px;
     }
 }
+
+/* ==== Иконки в мете карточки: один размер ==== */
+.agwera-item img {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
