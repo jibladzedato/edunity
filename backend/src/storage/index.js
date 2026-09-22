@@ -29,9 +29,23 @@ function makeKey(originalName) {
   return `${folder}/${crypto.randomBytes(16).toString('hex')}${ext}`;
 }
 
-// Из URL достаём ключ файла — нужно при удалении
+// Видео курсов лежат в отдельном закрытом бакете (S3_VIDEO_BUCKET).
+// Публичной ссылки у них нет, поэтому в базе они хранятся как
+// private://<ключ>, а смотреть их можно только по подписанной ссылке.
+const PRIVATE_PREFIX = 'private://';
+
+function isPrivate(url) {
+  return typeof url === 'string' && url.startsWith(PRIVATE_PREFIX);
+}
+
+function bucketFor(url) {
+  return isPrivate(url) ? process.env.S3_VIDEO_BUCKET : process.env.S3_BUCKET;
+}
+
+// Из URL достаём ключ файла — нужно при удалении и подписи
 function keyFromUrl(url) {
   if (!url) return null;
+  if (isPrivate(url)) return url.slice(PRIVATE_PREFIX.length);
   if (url.startsWith('/uploads/')) return url.replace('/uploads/', '');
   // полный URL вида https://pub-xxx.r2.dev/2026-09/abc.png
   const m = String(url).match(/^https?:\/\/[^/]+\/(.+)$/);
@@ -87,13 +101,15 @@ function getS3() {
 }
 
 const s3Driver = {
-  async save(tempPath, key, mimeType) {
+  async save(tempPath, key, mimeType, { private: priv = false } = {}) {
     const { Upload } = require('@aws-sdk/lib-storage');
+    // закрытый бакет — только если он настроен, иначе как раньше
+    const toPrivate = priv && !!process.env.S3_VIDEO_BUCKET;
 
     const upload = new Upload({
       client: getS3(),
       params: {
-        Bucket: process.env.S3_BUCKET,
+        Bucket: toPrivate ? process.env.S3_VIDEO_BUCKET : process.env.S3_BUCKET,
         Key: key,
         Body: fsSync.createReadStream(tempPath), // потоком — большие видео не грузим в память
         ContentType: mimeType,
@@ -102,6 +118,8 @@ const s3Driver = {
 
     await upload.done();
     await fs.unlink(tempPath).catch(() => {});
+
+    if (toPrivate) return PRIVATE_PREFIX + key;
 
     // Публичный адрес файла (R2: включить Public access у бакета)
     const base = (process.env.S3_PUBLIC_URL || '').replace(/\/$/, '');
@@ -114,7 +132,7 @@ const s3Driver = {
 
     const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
     await getS3().send(
-      new DeleteObjectCommand({ Bucket: process.env.S3_BUCKET, Key: key })
+      new DeleteObjectCommand({ Bucket: bucketFor(url), Key: key })
     );
     return true;
   },
@@ -157,7 +175,7 @@ async function signUrl(url) {
   const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
   return getSignedUrl(
     getS3(),
-    new GetObjectCommand({ Bucket: process.env.S3_BUCKET, Key: key }),
+    new GetObjectCommand({ Bucket: bucketFor(url), Key: key }),
     { expiresIn: SIGN_TTL }
   );
 }
@@ -171,6 +189,9 @@ if (DRIVER === 's3') {
   if (missing.length) {
     console.error('[storage] STORAGE_DRIVER=s3, но не заданы переменные:', missing.join(', '));
   }
+  if (!process.env.S3_VIDEO_BUCKET) {
+    console.warn('[storage] S3_VIDEO_BUCKET не задан — видео уходят в публичный бакет');
+  }
 }
 
 console.log(`[storage] режим: ${DRIVER === 's3' ? 'S3 / R2' : 'локальная папка uploads'}`);
@@ -180,7 +201,9 @@ module.exports = {
   isLocal: DRIVER !== 's3',
   makeKey,
   keyFromUrl,
-  save: (tempPath, key, mimeType) => driver.save(tempPath, key, mimeType),
+  save: (tempPath, key, mimeType, opts) => driver.save(tempPath, key, mimeType, opts),
+  isPrivate,
+  PRIVATE_PREFIX,
   remove: (url) => driver.remove(url),
   signUrl,
   checkLocalSign,

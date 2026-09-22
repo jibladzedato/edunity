@@ -29,7 +29,10 @@ async function removeIfOrphan(url) {
   if (!url || typeof url !== 'string') return false;
 
   // Файл считается нашим, если он лежит в локальной папке или в нашем бакете.
-  const ours = url.startsWith('/uploads/') || (process.env.S3_PUBLIC_URL && url.startsWith(process.env.S3_PUBLIC_URL));
+  const ours =
+    url.startsWith('/uploads/') ||
+    storage.isPrivate(url) || // видео из закрытого бакета
+    (process.env.S3_PUBLIC_URL && url.startsWith(process.env.S3_PUBLIC_URL));
   if (!ours) return false; // чужие и внешние ссылки не трогаем
 
   try {

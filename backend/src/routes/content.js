@@ -9,10 +9,12 @@ const { sanitizeHtml } = require('../db/sanitize');
 const storage = require('../storage');
 
 // Ссылку на видео отдаём подписанной и недолгой, чтобы её нельзя было
-// переслать в обход покупки курса.
+// переслать в обход покупки курса. Исходный url не трогаем: редактор
+// сохраняет его обратно, и подписанная (истекающая) ссылка не должна
+// попасть в базу. Смотреть — по playUrl.
 async function signStep(step) {
   if (step.type !== 'video' || !step.content || !step.content.url) return step;
-  return { ...step, content: { ...step.content, url: await storage.signUrl(step.content.url) } };
+  return { ...step, content: { ...step.content, playUrl: await storage.signUrl(step.content.url) } };
 }
 
 // Меняет местами элемент и его соседа — так автор двигает модуль/урок/шаг
@@ -348,6 +350,7 @@ router.patch('/steps/:id', requireAuth, async (req, res) => {
     // Текстовые поля приходят из визуального редактора — чистим их от
     // потенциально опасной разметки перед сохранением
     const content = { ...req.body.content };
+    delete content.playUrl; // временная подписанная ссылка, в базу не пишем
     if (typeof content.html === 'string') content.html = sanitizeHtml(content.html);
     if (typeof content.statement === 'string') content.statement = sanitizeHtml(content.statement);
 

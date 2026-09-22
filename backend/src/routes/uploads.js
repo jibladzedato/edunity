@@ -77,7 +77,7 @@ function handleUpload(uploader, kind, maxSize) {
         }
 
         const key = storage.makeKey(req.file.originalname);
-        const url = await storage.save(req.file.path, key, req.file.mimetype);
+        const url = await storage.save(req.file.path, key, req.file.mimetype, { private: kind === 'video' });
 
         await pool.query(
           `INSERT INTO uploads (user_id, filename, url, mime_type, size_bytes, kind)
@@ -85,7 +85,9 @@ function handleUpload(uploader, kind, maxSize) {
           [req.userId, req.file.originalname, url, req.file.mimetype, req.file.size, kind]
         );
 
-        res.status(201).json({ url, kind, mimeType: req.file.mimetype, size: req.file.size });
+        // url — то, что сохраняется в курсе; previewUrl — чем показать прямо сейчас
+        const previewUrl = kind === 'video' ? await storage.signUrl(url) : url;
+        res.status(201).json({ url, previewUrl, kind, mimeType: req.file.mimetype, size: req.file.size });
       } catch (e) {
         console.error('Ошибка сохранения файла:', e);
         await fs.unlink(req.file.path).catch(() => {});
