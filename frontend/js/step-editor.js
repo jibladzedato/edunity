@@ -342,6 +342,7 @@ function renderMain() {
         EdunityUpload.attach(document.getElementById('video-upload'), {
             kind: 'video',
             value: uploadState.videoUrl,
+            preview: step.content && step.content.playUrl,
             onChange: async (url) => {
                 uploadState.videoUrl = url;
                 try {

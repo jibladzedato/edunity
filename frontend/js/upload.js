@@ -62,12 +62,15 @@ const EdunityUpload = (function () {
     return data;
   }
 
-  function attach(container, { kind = 'image', value = '', onChange = () => {} } = {}) {
+  // value — что хранится в курсе (у закрытого видео это private://...),
+  // preview — чем его показать (подписанная ссылка от сервера).
+  function attach(container, { kind = 'image', value = '', preview: previewUrl = '', onChange = () => {} } = {}) {
     let current = value || '';
+    let shown = previewUrl || value || '';
 
     function preview() {
       if (!current) return '<div class="up-empty">ფაილი არ არის არჩეული</div>';
-      const src = fileUrl(current);
+      const src = fileUrl(shown);
       if (kind === 'image') {
         return `<img class="up-preview-img" src="${src}" alt="" data-src="${src}">`;
       }
@@ -184,6 +187,7 @@ const EdunityUpload = (function () {
 
           console.log('[EDUNITY upload] успешно:', data.url);
           current = data.url;
+          shown = data.previewUrl || data.url;
           onChange(current);
           render();
           const st = container.querySelector('.up-status');
@@ -204,6 +208,7 @@ const EdunityUpload = (function () {
       if (clearBtn) {
         clearBtn.addEventListener('click', () => {
           current = '';
+          shown = '';
           onChange('');
           render();
         });
