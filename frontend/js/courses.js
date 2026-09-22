@@ -112,7 +112,7 @@ let searchTimer = null;
 
 async function applyFilters(page = 1) {
     currentPage = page;
-    catalogGrid.innerHTML = EdunityUI.skeleton(3, 'skel-row');
+    catalogGrid.innerHTML = EdunityUI.skeleton(3, 'kursi-card skel-row');
 
     const query = {};
     const q = searchInput.value.trim();
@@ -183,7 +183,7 @@ searchInput.addEventListener('input', () => {
 });
 
 async function load() {
-    catalogGrid.innerHTML = EdunityUI.skeleton(3, 'skel-row');
+    catalogGrid.innerHTML = EdunityUI.skeleton(3, 'kursi-card skel-row');
     try {
         CATEGORIES = await loadCategories();
         renderCategoryChips();

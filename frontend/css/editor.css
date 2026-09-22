@@ -3241,20 +3241,16 @@ body {
     from { background-position: 200% 0; }
     to { background-position: -200% 0; }
 }
+/* Размеры берутся у настоящих карточек, заглушка только красит */
 .skel-card {
-    width: 100%;
-    max-width: 280px;
     height: 300px;
 }
 .skel-row {
-    width: 100%;
     height: 190px;
     margin-bottom: 14px;
 }
 .skel-leqtori {
-    width: 160px;
-    aspect-ratio: 1;
-    border-radius: 50%;
+    border-color: #e6eae5;
 }
 @media (prefers-reduced-motion: reduce) {
     .skel { animation: none; }
