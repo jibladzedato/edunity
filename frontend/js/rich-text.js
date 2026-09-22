@@ -7,7 +7,8 @@
 
 const EdunityRich = (function () {
   const ALLOWED_TAGS = ['P','BR','B','STRONG','I','EM','U','S','H3','H4','UL','OL','LI','BLOCKQUOTE','CODE','PRE','A','IMG','DIV'];
-  const ALLOWED_ATTRS = { A: ['href', 'title'], IMG: ['src', 'alt'] };
+  // data-src — постоянный адрес закрытой картинки урока (src у неё временный)
+  const ALLOWED_ATTRS = { A: ['href', 'title'], IMG: ['src', 'alt', 'data-src'] };
 
   function safeUrl(v) {
     return /^(javascript|data|vbscript|file):/i.test(String(v || '').trim()) ? null : v;
@@ -64,7 +65,8 @@ const EdunityRich = (function () {
   ];
 
   // container — пустой div, куда встроится редактор
-  function attach(container, { value = '', onChange = () => {}, minHeight = 220 } = {}) {
+  // privateImages — картинки уходят в закрытое хранилище (содержимое урока)
+  function attach(container, { value = '', onChange = () => {}, minHeight = 220, privateImages = false } = {}) {
     // Если контейнера нет (разметка изменилась, а вызов остался) — не роняем
     // всю страницу: без этого переставали работать и остальные кнопки формы.
     if (!container) {
@@ -111,7 +113,7 @@ const EdunityRich = (function () {
           const url = await EdunityUI.prompt({ title: 'ბმული', placeholder: 'https://...', okText: 'დამატება' });
           if (url && safeUrl(url)) document.execCommand('createLink', false, url);
         } else if (b.cmd === 'insertImage') {
-          await insertImage(area);
+          await insertImage(area, privateImages);
         } else if (b.cmd === 'formatBlock') {
           document.execCommand('formatBlock', false, b.value);
         } else {
@@ -133,7 +135,7 @@ const EdunityRich = (function () {
   }
 
   // Загрузка картинки прямо в текст
-  async function insertImage(area) {
+  async function insertImage(area, privateImages) {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
@@ -143,9 +145,11 @@ const EdunityRich = (function () {
       if (!file) return;
       try {
         EdunityUI.toast('სურათი იტვირთება...', 'success');
-        const data = await EdunityUpload.send(file, 'image');
+        const data = await EdunityUpload.send(file, privateImages ? 'lesson-image' : 'image');
         area.focus();
-        document.execCommand('insertHTML', false, `<img src="${EdunityUpload.fileUrl(data.url)}" alt="">`);
+        const src = EdunityUpload.fileUrl(data.previewUrl || data.url);
+        const keep = data.url.startsWith('private://') ? ` data-src="${data.url}"` : '';
+        document.execCommand('insertHTML', false, `<img src="${src}"${keep} alt="">`);
         area.dispatchEvent(new Event('input'));
       } catch (err) {
         EdunityUI.toast(err.message);

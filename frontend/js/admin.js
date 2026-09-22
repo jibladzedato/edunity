@@ -640,7 +640,8 @@ function bindBackup() {
                 if (!entry) continue;
                 const blob = await entry.async('blob');
                 const upload = new File([blob], m.name.split('/').pop(), { type: m.mimeType });
-                const saved = await EdunityUpload.send(upload, m.kind === 'video' ? 'video' : 'image');
+                const kind = ['video', 'image', 'lesson-image'].includes(m.kind) ? m.kind : 'image';
+                const saved = await EdunityUpload.send(upload, kind);
                 json = replaceAll(json, MEDIA_PREFIX + m.name, saved.url);
             }
 

@@ -319,6 +319,7 @@ function renderMain() {
         richState.html = (step.content && step.content.html) || '';
         EdunityRich.attach(document.getElementById('c-html-rich'), {
             value: richState.html,
+            privateImages: true,
             onChange: (html) => { richState.html = html; },
         });
     }
@@ -327,6 +328,7 @@ function renderMain() {
         EdunityRich.attach(document.getElementById('c-statement-rich'), {
             value: richState.statement,
             minHeight: 140,
+            privateImages: true,
             onChange: (html) => { richState.statement = html; },
         });
     }

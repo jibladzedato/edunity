@@ -29,17 +29,19 @@ function makeKey(originalName) {
   return `${folder}/${crypto.randomBytes(16).toString('hex')}${ext}`;
 }
 
-// Видео курсов лежат в отдельном закрытом бакете (S3_VIDEO_BUCKET).
-// Публичной ссылки у них нет, поэтому в базе они хранятся как
-// private://<ключ>, а смотреть их можно только по подписанной ссылке.
+// Содержимое курсов (видео и картинки уроков) лежит в отдельном закрытом
+// бакете. Публичной ссылки у файлов нет, в базе они хранятся как
+// private://<ключ>, а открыть их можно только по подписанной ссылке.
+// Обложки, аватары и иконки остаются в публичном S3_BUCKET.
 const PRIVATE_PREFIX = 'private://';
+const PRIVATE_BUCKET = () => process.env.S3_PRIVATE_BUCKET || process.env.S3_VIDEO_BUCKET;
 
 function isPrivate(url) {
   return typeof url === 'string' && url.startsWith(PRIVATE_PREFIX);
 }
 
 function bucketFor(url) {
-  return isPrivate(url) ? process.env.S3_VIDEO_BUCKET : process.env.S3_BUCKET;
+  return isPrivate(url) ? PRIVATE_BUCKET() : process.env.S3_BUCKET;
 }
 
 // Из URL достаём ключ файла — нужно при удалении и подписи
@@ -104,12 +106,12 @@ const s3Driver = {
   async save(tempPath, key, mimeType, { private: priv = false } = {}) {
     const { Upload } = require('@aws-sdk/lib-storage');
     // закрытый бакет — только если он настроен, иначе как раньше
-    const toPrivate = priv && !!process.env.S3_VIDEO_BUCKET;
+    const toPrivate = priv && !!PRIVATE_BUCKET();
 
     const upload = new Upload({
       client: getS3(),
       params: {
-        Bucket: toPrivate ? process.env.S3_VIDEO_BUCKET : process.env.S3_BUCKET,
+        Bucket: toPrivate ? PRIVATE_BUCKET() : process.env.S3_BUCKET,
         Key: key,
         Body: fsSync.createReadStream(tempPath), // потоком — большие видео не грузим в память
         ContentType: mimeType,
@@ -180,6 +182,31 @@ async function signUrl(url) {
   );
 }
 
+// Картинки внутри HTML урока.
+// В базе:   <img src="private://key">
+// Наружу:   <img src="подписанная" data-src="private://key">
+// При сохранении редактор присылает HTML обратно — по data-src
+// возвращаем постоянную ссылку, чтобы истекающая не попала в базу.
+async function signHtml(html) {
+  if (typeof html !== 'string' || !html.includes(PRIVATE_PREFIX)) return html;
+  const urls = [...new Set(html.match(/private:\/\/[^"'\s>]+/g) || [])];
+  let out = html;
+  for (const url of urls) {
+    const signed = await signUrl(url);
+    out = out.split(`src="${url}"`).join(`src="${signed}" data-src="${url}"`);
+  }
+  return out;
+}
+
+function unsignHtml(html) {
+  if (typeof html !== 'string' || !html.includes('data-src=')) return html;
+  return html.replace(/<img\b[^>]*>/gi, (tag) => {
+    const m = tag.match(/data-src="(private:\/\/[^"]+)"/);
+    if (!m) return tag;
+    return tag.replace(/\sdata-src="[^"]*"/, '').replace(/\ssrc="[^"]*"/, ` src="${m[1]}"`);
+  });
+}
+
 // ==========================================================
 const driver = DRIVER === 's3' ? s3Driver : localDriver;
 
@@ -189,8 +216,10 @@ if (DRIVER === 's3') {
   if (missing.length) {
     console.error('[storage] STORAGE_DRIVER=s3, но не заданы переменные:', missing.join(', '));
   }
-  if (!process.env.S3_VIDEO_BUCKET) {
-    console.warn('[storage] S3_VIDEO_BUCKET не задан — видео уходят в публичный бакет');
+  if (!PRIVATE_BUCKET()) {
+    console.warn('[storage] S3_PRIVATE_BUCKET не задан — содержимое курсов уходит в публичный бакет');
+  } else {
+    console.log(`[storage] закрытый бакет: ${PRIVATE_BUCKET()}`);
   }
 }
 
@@ -204,6 +233,8 @@ module.exports = {
   save: (tempPath, key, mimeType, opts) => driver.save(tempPath, key, mimeType, opts),
   isPrivate,
   PRIVATE_PREFIX,
+  signHtml,
+  unsignHtml,
   remove: (url) => driver.remove(url),
   signUrl,
   checkLocalSign,

@@ -8,13 +8,21 @@ const { removeIfOrphan, stepFiles } = require('../db/uploads-cleanup');
 const { sanitizeHtml } = require('../db/sanitize');
 const storage = require('../storage');
 
-// Ссылку на видео отдаём подписанной и недолгой, чтобы её нельзя было
-// переслать в обход покупки курса. Исходный url не трогаем: редактор
-// сохраняет его обратно, и подписанная (истекающая) ссылка не должна
-// попасть в базу. Смотреть — по playUrl.
+// Файлы урока отдаём по подписанным недолгим ссылкам, чтобы их нельзя
+// было переслать в обход курса. Постоянные ссылки не трогаем: редактор
+// сохраняет контент обратно, и истекающая ссылка не должна попасть в базу.
+//   видео           → playUrl
+//   старая картинка → imageSrc
+//   картинки в HTML → src подписан, постоянный адрес в data-src
 async function signStep(step) {
-  if (step.type !== 'video' || !step.content || !step.content.url) return step;
-  return { ...step, content: { ...step.content, playUrl: await storage.signUrl(step.content.url) } };
+  const c = step.content;
+  if (!c || typeof c !== 'object') return step;
+  const out = { ...c };
+  if (step.type === 'video' && c.url) out.playUrl = await storage.signUrl(c.url);
+  if (storage.isPrivate(c.imageUrl)) out.imageSrc = await storage.signUrl(c.imageUrl);
+  if (typeof c.html === 'string') out.html = await storage.signHtml(c.html);
+  if (typeof c.statement === 'string') out.statement = await storage.signHtml(c.statement);
+  return { ...step, content: out };
 }
 
 // Меняет местами элемент и его соседа — так автор двигает модуль/урок/шаг
@@ -350,7 +358,11 @@ router.patch('/steps/:id', requireAuth, async (req, res) => {
     // Текстовые поля приходят из визуального редактора — чистим их от
     // потенциально опасной разметки перед сохранением
     const content = { ...req.body.content };
-    delete content.playUrl; // временная подписанная ссылка, в базу не пишем
+    // временные подписанные ссылки в базу не пишем
+    delete content.playUrl;
+    delete content.imageSrc;
+    if (typeof content.html === 'string') content.html = storage.unsignHtml(content.html);
+    if (typeof content.statement === 'string') content.statement = storage.unsignHtml(content.statement);
     if (typeof content.html === 'string') content.html = sanitizeHtml(content.html);
     if (typeof content.statement === 'string') content.statement = sanitizeHtml(content.statement);
 

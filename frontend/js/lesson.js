@@ -42,7 +42,7 @@ function renderStepContent(step) {
     if (step.type === 'text') {
         // текст приходит из визуального редактора — чистим перед показом
         const html = EdunityRich.sanitize(c.html || '');
-        const legacyImage = c.imageUrl ? `<img class="lesson-image" src="${esc(mediaUrl(c.imageUrl))}" alt="">` : '';
+        const legacyImage = c.imageUrl ? `<img class="lesson-image" src="${esc(mediaUrl(c.imageSrc || c.imageUrl))}" alt="">` : '';
         if (!html.trim() && !legacyImage) return '<p class="editor-empty">ეს ნაბიჯი ჯერ ცარიელია</p>';
         return `<div class="rich-content">${html}</div>` + legacyImage;
     }

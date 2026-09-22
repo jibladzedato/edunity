@@ -77,7 +77,9 @@ function handleUpload(uploader, kind, maxSize) {
         }
 
         const key = storage.makeKey(req.file.originalname);
-        const url = await storage.save(req.file.path, key, req.file.mimetype, { private: kind === 'video' });
+        // видео и картинки уроков — содержимое курса, оно закрытое
+        const isContent = kind === 'video' || kind === 'lesson-image';
+        const url = await storage.save(req.file.path, key, req.file.mimetype, { private: isContent });
 
         await pool.query(
           `INSERT INTO uploads (user_id, filename, url, mime_type, size_bytes, kind)
@@ -86,7 +88,7 @@ function handleUpload(uploader, kind, maxSize) {
         );
 
         // url — то, что сохраняется в курсе; previewUrl — чем показать прямо сейчас
-        const previewUrl = kind === 'video' ? await storage.signUrl(url) : url;
+        const previewUrl = storage.isPrivate(url) ? await storage.signUrl(url) : url;
         res.status(201).json({ url, previewUrl, kind, mimeType: req.file.mimetype, size: req.file.size });
       } catch (e) {
         console.error('Ошибка сохранения файла:', e);
@@ -98,6 +100,7 @@ function handleUpload(uploader, kind, maxSize) {
 }
 
 router.post('/image', requireAuth, handleUpload(uploadImage, 'image', MAX_IMAGE));
+router.post('/lesson-image', requireAuth, handleUpload(uploadImage, 'lesson-image', MAX_IMAGE));
 router.post('/video', requireAuth, handleUpload(uploadVideo, 'video', MAX_VIDEO));
 
 // GET /api/uploads/my — библиотека файлов пользователя
