@@ -3255,3 +3255,13 @@ body {
 @media (prefers-reduced-motion: reduce) {
     .skel { animation: none; }
 }
+
+/* ==== სწავლება: пока проверяем курсы, лендинг скрыт ==== */
+.teach-checking #teach-landing {
+    display: none;
+}
+.skel-studio {
+    height: 72px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+}

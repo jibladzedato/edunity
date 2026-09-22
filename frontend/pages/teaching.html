@@ -6,6 +6,11 @@
     <title>სწავლება | EDUNITY</title>
     <link rel="stylesheet" href="../css/syle.css">
     <link rel="stylesheet" href="../css/editor.css">
+    <!-- Вошедшему лендинг не показываем сразу: сначала узнаём, есть ли курсы.
+         Иначе он мелькает перед студией. -->
+    <script>
+        if (localStorage.getItem('edunity_token')) document.documentElement.classList.add('teach-checking');
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

@@ -91,12 +91,20 @@ async function deleteCourse(id, title) {
 async function load() {
     if (!EdunityAuth.isLoggedIn()) return; // гость видит лендинг
 
+    // пока ждём ответ — заглушки на месте списка
+    studio.hidden = false;
+    grid.innerHTML = EdunityUI.skeleton(3, 'skel-studio');
+
     let courses = [];
     try {
         courses = await EdunityAPI.myCourses();
     } catch (err) {
         EdunityUI.toast(err.message);
+        studio.hidden = true;
+        landing.hidden = false;
         return;
+    } finally {
+        document.documentElement.classList.remove('teach-checking');
     }
 
     if (courses.length === 0) {
