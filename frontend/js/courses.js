@@ -112,7 +112,7 @@ let searchTimer = null;
 
 async function applyFilters(page = 1) {
     currentPage = page;
-    catalogGrid.innerHTML = '<p class="catalog-empty">იტვირთება...</p>';
+    catalogGrid.innerHTML = EdunityUI.skeleton(3, 'skel-row');
 
     const query = {};
     const q = searchInput.value.trim();
@@ -183,7 +183,7 @@ searchInput.addEventListener('input', () => {
 });
 
 async function load() {
-    catalogGrid.innerHTML = '<p class="catalog-empty">იტვირთება...</p>';
+    catalogGrid.innerHTML = EdunityUI.skeleton(3, 'skel-row');
     try {
         CATEGORIES = await loadCategories();
         renderCategoryChips();

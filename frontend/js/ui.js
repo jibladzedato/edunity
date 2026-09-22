@@ -123,5 +123,11 @@ const EdunityUI = (function () {
     return n === 0 ? 'უფასო' : n.toLocaleString('ka-GE').replace(/,/g, ' ') + '₾';
   }
 
-  return { prompt, confirm, toast, price };
+  // Пока идёт запрос, вместо пустого места — серые карточки.
+  // Бэкенд на бесплатном тарифе может отвечать не сразу.
+  function skeleton(count, cls) {
+    return Array.from({ length: count }, () => `<div class="skel ${cls || ''}"></div>`).join('');
+  }
+
+  return { prompt, confirm, toast, price, skeleton };
 })();

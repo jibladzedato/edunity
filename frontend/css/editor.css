@@ -3228,3 +3228,34 @@ body {
     flex-wrap: wrap;
     margin-bottom: 18px;
 }
+
+/* ==== Заглушки на время загрузки ==== */
+/* Бэкенд просыпается не мгновенно, и пустая страница выглядит сломанной */
+.skel {
+    border-radius: 16px;
+    background: linear-gradient(90deg, #f0f2ef 25%, #e6eae5 50%, #f0f2ef 75%);
+    background-size: 200% 100%;
+    animation: skel-shine 1.2s infinite linear;
+}
+@keyframes skel-shine {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+}
+.skel-card {
+    width: 100%;
+    max-width: 280px;
+    height: 300px;
+}
+.skel-row {
+    width: 100%;
+    height: 190px;
+    margin-bottom: 14px;
+}
+.skel-leqtori {
+    width: 160px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+}
+@media (prefers-reduced-motion: reduce) {
+    .skel { animation: none; }
+}

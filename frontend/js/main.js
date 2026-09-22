@@ -180,6 +180,8 @@ searchInput.addEventListener('keyup', (e) => {
 
 async function load() {
     const cont = document.querySelector('.kursebi-container');
+    cont.innerHTML = EdunityUI.skeleton(3, 'skel-card');
+    document.querySelector('.leqtorebis-fotoebi').innerHTML = EdunityUI.skeleton(4, 'skel-leqtori');
     try {
         // Что показывать на главной, задаёт админ; если ничего не задано —
         // бэкенд сам подставит свежие курсы и активных лекторов.
