@@ -91,9 +91,12 @@ async function deleteCourse(id, title) {
 async function load() {
     if (!EdunityAuth.isLoggedIn()) return; // гость видит лендинг
 
-    // пока ждём ответ — заглушки на месте списка
-    studio.hidden = false;
-    grid.innerHTML = EdunityUI.skeleton(3, 'skel-studio');
+    // заглушки — только если ждём студию (в прошлый раз курсы были)
+    const expectStudio = document.documentElement.classList.contains('teach-checking');
+    if (expectStudio) {
+        studio.hidden = false;
+        grid.innerHTML = EdunityUI.skeleton(3, 'skel-studio');
+    }
 
     let courses = [];
     try {
@@ -106,6 +109,9 @@ async function load() {
     } finally {
         document.documentElement.classList.remove('teach-checking');
     }
+
+    // запоминаем для следующего захода
+    localStorage.setItem('edunity_has_courses', courses.length > 0 ? '1' : '0');
 
     if (courses.length === 0) {
         // автор без курсов — оставляем лендинг

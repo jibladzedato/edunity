@@ -35,6 +35,7 @@ const EdunityAuth = {
   clear() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    localStorage.removeItem('edunity_has_courses'); // флаг студии другого пользователя
   },
 };
 
