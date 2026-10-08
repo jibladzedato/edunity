@@ -1183,7 +1183,7 @@ footer p{
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 20px;
+    padding: 14px 14px;
     border-bottom: 1px solid #e5e9e3;
     gap: 16px;
 }
