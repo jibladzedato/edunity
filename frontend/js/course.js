@@ -287,7 +287,7 @@ async function loadReviews() {
 async function load() {
     try {
         course = await EdunityAPI.course(courseId);
-        document.title = course.title + ' | EDUNITY';
+        document.title = course.title + ' | წინსვლა';
         structure = await EdunityAPI.courseStructure(courseId);
 
         if (EdunityAuth.isLoggedIn()) {

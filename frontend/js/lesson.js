@@ -537,7 +537,7 @@ async function load() {
         data = await EdunityAPI.lessonSteps(lessonId);
 
         topbarTitle.textContent = data.courseTitle;
-        document.title = data.lessonTitle + ' | EDUNITY';
+        document.title = data.lessonTitle + ' | წინსვლა';
         document.getElementById('lesson-exit').setAttribute('href', 'course.html?id=' + data.courseId);
 
         // структура всего курса — для сайдбара и перехода между уроками

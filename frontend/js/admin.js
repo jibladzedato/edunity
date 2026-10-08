@@ -631,7 +631,7 @@ function bindBackup() {
             if (!manifestFile) throw new Error('არქივში არ არის course.json');
 
             const manifest = JSON.parse(await manifestFile.async('string'));
-            if (manifest.format !== 'edunity-course') throw new Error('ფაილი არ არის EDUNITY-ის კურსი');
+            if (manifest.format !== 'edunity-course') throw new Error('ფაილი არ არის წინსვლის კურსი');
 
             let json = JSON.stringify(manifest.course);
             for (const [i, m] of (manifest.media || []).entries()) {

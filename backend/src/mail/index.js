@@ -9,19 +9,19 @@ const nodemailer = require('nodemailer');
 
 const SMTP_HOST = process.env.SMTP_HOST;
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
-const FROM = process.env.MAIL_FROM || 'EDUNITY <no-reply@edunity.ge>';
+const FROM = process.env.MAIL_FROM || 'წინსვლა <no-reply@tsinsvla.ge>';
 
 // Разбираем значение MAIL_FROM на имя и адрес.
 //
-// Правильный формат — "EDUNITY <mail@example.com>". Но скобки легко забыть,
+// Правильный формат — "წინსვლა <mail@example.com>". Но скобки легко забыть,
 // а API Brevo тогда отвечает "valid sender email required". Поэтому адрес
-// вытаскиваем в любом случае: и из скобок, и из строки вида "EDUNITY mail@x.com".
+// вытаскиваем в любом случае: и из скобок, и из строки вида "წინსვლა mail@x.com".
 function parseFrom(value) {
   const raw = String(value || '').trim();
 
   const withBrackets = raw.match(/^\s*(.*?)\s*<([^>]+)>\s*$/);
   if (withBrackets) {
-    return { name: withBrackets[1] || 'EDUNITY', email: withBrackets[2].trim() };
+    return { name: withBrackets[1] || 'წინსვლა', email: withBrackets[2].trim() };
   }
 
   // скобок нет — ищем то, что похоже на адрес
@@ -29,10 +29,10 @@ function parseFrom(value) {
   if (found) {
     const email = found[0];
     const name = raw.replace(email, '').replace(/[<>]/g, '').trim();
-    return { name: name || 'EDUNITY', email };
+    return { name: name || 'წინსვლა', email };
   }
 
-  return { name: 'EDUNITY', email: raw };
+  return { name: 'წინსვლა', email: raw };
 }
 
 // Отправка через HTTP API Brevo.
@@ -101,7 +101,7 @@ function layout(title, bodyHtml) {
   return `
   <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#eef1ec;padding:28px">
     <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:14px;padding:32px">
-      <div style="font-size:20px;font-weight:700;color:#5fb670;letter-spacing:1px;margin-bottom:22px">EDUNITY</div>
+      <div style="font-size:20px;font-weight:700;color:#5fb670;letter-spacing:1px;margin-bottom:22px">წინსვლა</div>
       <h1 style="font-size:19px;color:#000;margin:0 0 14px">${title}</h1>
       ${bodyHtml}
       <p style="font-size:12px;color:#9e9e9e;margin-top:26px;border-top:1px solid #eef0ed;padding-top:14px">
@@ -159,7 +159,7 @@ async function send(to, subject, html) {
 function sendVerification(to, name, url) {
   return send(
     to,
-    'დაადასტურე ელ.ფოსტა — EDUNITY',
+    'დაადასტურე ელ.ფოსტა — წინსვლა',
     layout(
       `გამარჯობა, ${name}!`,
       `<p style="font-size:14px;color:#000;line-height:1.6">
@@ -173,7 +173,7 @@ function sendVerification(to, name, url) {
 function sendPasswordReset(to, name, url) {
   return send(
     to,
-    'პაროლის აღდგენა — EDUNITY',
+    'პაროლის აღდგენა — წინსვლა',
     layout(
       `გამარჯობა, ${name}!`,
       `<p style="font-size:14px;color:#000;line-height:1.6">

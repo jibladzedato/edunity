@@ -302,7 +302,7 @@ router.post('/mail-test', async (req, res) => {
 
   const result = await mail.send(
     to,
-    'ტესტური წერილი — EDUNITY',
+    'ტესტური წერილი — წინსვლა',
     '<p>თუ ეს წერილი მოვიდა, ფოსტის პარამეტრები სწორია.</p>'
   );
 
@@ -477,7 +477,7 @@ router.get('/courses/:id/export', requireOwner, async (req, res) => {
 router.post('/courses/import', requireOwner, async (req, res) => {
   const course = req.body && req.body.course;
   if (!course || typeof course.title !== 'string' || !course.title.trim() || !Array.isArray(course.modules)) {
-    return res.status(400).json({ error: 'ფაილი არ არის EDUNITY-ის კურსი' });
+    return res.status(400).json({ error: 'ფაილი არ არის წინსვლის კურსი' });
   }
 
   const int = (v, max) => Math.min(max, Math.max(0, Math.round(Number(v) || 0)));

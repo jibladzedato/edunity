@@ -12,7 +12,7 @@ const code = new URLSearchParams(window.location.search).get('code');
 function verifyForm(message) {
     page.innerHTML = `
         <div class="cert-verify">
-            <a href="../index.html" class="logo">EDUNITY</a>
+            <a href="../index.html" class="logo">წინსვლა</a>
             <h1>სერტიფიკატის შემოწმება</h1>
             ${message ? `<p class="cert-error">${esc(message)}</p>` : ''}
             <input type="text" id="code-input" placeholder="EDU-XXXX-XXXX" value="${esc(code || '')}">
@@ -34,12 +34,12 @@ async function load() {
 
         page.innerHTML = `
             <div class="cert-actions no-print">
-                <a href="../index.html" class="studio-btn">← EDUNITY</a>
+                <a href="../index.html" class="studio-btn">← წინსვლა</a>
                 <button class="studio-btn primary" onclick="window.print()">ბეჭდვა / PDF</button>
             </div>
 
             <div class="cert-sheet">
-                <div class="cert-brand">EDUNITY</div>
+                <div class="cert-brand">წინსვლა</div>
                 <p class="cert-kicker">სერტიფიკატი</p>
 
                 <h1 class="cert-name">${esc(c.studentName)}</h1>

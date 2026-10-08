@@ -9,7 +9,7 @@ function esc(s) {
 
 function show(icon, title, text, actionHtml) {
     page.innerHTML = `
-        <a href="../index.html" class="logo">EDUNITY</a>
+        <a href="../index.html" class="logo">წინსვლა</a>
         <div class="auth-msg-icon">${icon}</div>
         <h1>${title}</h1>
         <p>${text}</p>

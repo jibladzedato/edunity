@@ -11,7 +11,7 @@ const page = document.getElementById('instructor-page');
 async function load() {
     try {
         const p = await EdunityAPI.instructorProfile(userId);
-        document.title = p.name + ' | EDUNITY';
+        document.title = p.name + ' | წინსვლა';
 
         const initial = (p.name || '?').trim().charAt(0).toUpperCase();
 
