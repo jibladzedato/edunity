@@ -1,4 +1,11 @@
 @font-face {
+  font-family: "alk-katerina";
+  src: url("../assets/fonts/alk-katerina.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
   font-family: "FiraGO";
   src: url("../assets/fonts/FiraGO-Regular.woff2") format("woff2");
   font-weight: 400;
@@ -140,9 +147,10 @@ nav li a.active,
 .logo {
     text-decoration: none;
     color: #5FB670;
-    font-size: 22px;
+    font-size: 29px;
     font-weight: bold;
-    font-family: "Days One";
+    font-family: "alk-katerina";
+    letter-spacing: 2px;
     
 }
 .close {
@@ -264,7 +272,6 @@ nav li a.active,
     font-size: 14px;
     font-family: "FiraGO";
     white-space: nowrap;
-    padding: 6px 16px;
     border-radius: 20px;
 }
 
@@ -1058,10 +1065,12 @@ footer{
 }
 footer p{
     align-self: center;
+    text-decoration: none;
     color: #5FB670;
-    font-size: 30px;
+    font-size: 29px;
     font-weight: bold;
-    font-family: "Days One";
+    font-family: "alk-katerina";
+    letter-spacing: 2px;
 }
 
 

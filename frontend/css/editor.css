@@ -2416,10 +2416,12 @@ body {
     position: relative;
 }
 .cert-brand {
-    font-family: "Days One", sans-serif;
-    font-size: 24px;
-    color: #5fb670;
-    letter-spacing: 1px;
+    text-decoration: none;
+    color: #5FB670;
+    font-size: 29px;
+    font-weight: bold;
+    font-family: "alk-katerina";
+    letter-spacing: 2px;
     margin-bottom: 26px;
 }
 .cert-kicker {
