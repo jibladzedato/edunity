@@ -272,6 +272,7 @@ nav li a.active,
     font-size: 14px;
     font-family: "FiraGO";
     white-space: nowrap;
+    padding: 6px 16px;
     border-radius: 20px;
 }
 
